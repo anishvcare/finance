@@ -12,9 +12,9 @@ return [
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
     'cipher' => 'AES-256-CBC',
-    // Fallback key baked in so the app can boot on shared hosting even if the
-    // .env file cannot be read. env('APP_KEY') still takes precedence when set.
-    'key' => env('APP_KEY', 'base64:LU1kJdsivPLeaMNzDlthMYN64hdtPb/bsmK4YTSGz0Y='),
+    // Use ?: (not the env default arg) so the fallback also applies when
+    // APP_KEY is present but EMPTY in .env (empty string bypasses the default).
+    'key' => env('APP_KEY') ?: 'base64:LU1kJdsivPLeaMNzDlthMYN64hdtPb/bsmK4YTSGz0Y=',
     'previous_keys' => [],
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),

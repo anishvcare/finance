@@ -19,7 +19,7 @@ return new class extends Migration
             $table->json('properties')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->string('user_agent', 500)->nullable();
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->useCurrent();
             $table->index(['workspace_id', 'created_at']);
             $table->index(['subject_type', 'subject_id']);
         });
@@ -59,7 +59,7 @@ return new class extends Migration
             $table->enum('status', ['queued', 'sent', 'failed'])->default('queued');
             $table->text('error_message')->nullable();
             $table->timestamp('sent_at')->nullable();
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->useCurrent();
             $table->index(['workspace_id', 'status']);
         });
 
@@ -92,7 +92,7 @@ return new class extends Migration
             $table->foreignId('workspace_id')->constrained()->cascadeOnDelete();
             $table->foreignId('plan_id')->constrained();
             $table->enum('status', ['active', 'cancelled', 'expired', 'trial'])->default('trial');
-            $table->timestamp('started_at');
+            $table->timestamp('started_at')->useCurrent();
             $table->timestamp('expires_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
             $table->timestamps();

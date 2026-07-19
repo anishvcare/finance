@@ -51,7 +51,7 @@ return new class extends Migration
             $table->date('effective_from');
             $table->date('effective_to')->nullable();
             $table->foreignId('created_by')->constrained('users');
-            $table->timestamp('created_at');
+            $table->timestamp('created_at')->useCurrent();
             $table->index(['product_id', 'price_type', 'effective_from']);
         });
 

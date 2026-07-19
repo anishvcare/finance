@@ -5,11 +5,12 @@ import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { getDefaultCurrency } from '../../lib/currencies';
+import ItemPicker, { PickedItem } from '../../components/ItemPicker';
 
 interface LineItem {
     id: string; type: 'product' | 'service' | 'custom'; name: string; description: string;
     unit: string; quantity: number; unit_price: number; discount_rate: number; tax_rate: number;
-    product_id?: number; service_id?: number;
+    product_id?: number; service_id?: number; tax_id?: number;
 }
 
 function genId(): string { return Math.random().toString(36).substr(2, 9); }
@@ -27,7 +28,13 @@ export default function QuoteForm() {
     const isEdit = !!id;
 
     const [form, setForm] = useState({ customer_id: '', quote_date: new Date().toISOString().split('T')[0], expiry_date: '', currency: getDefaultCurrency(), notes: '', terms: '', customer_message: '' });
-    const [items, setItems] = useState<LineItem[]>([{ id: genId(), type: 'custom', name: '', description: '', unit: 'each', quantity: 1, unit_price: 0, discount_rate: 0, tax_rate: 0 }]);
+    const [items, setItems] = useState<LineItem[]>([]);
+
+    const addPicked = (it: PickedItem) => setItems(p => [...p, {
+        id: genId(), type: it.type, name: it.name, description: it.description,
+        unit: it.unit || 'each', quantity: 1, unit_price: it.unit_price,
+        discount_rate: 0, tax_rate: it.tax_rate, product_id: it.product_id, service_id: it.service_id, tax_id: it.tax_id,
+    }]);
 
     const { data: customers } = useQuery({ queryKey: ['customers-list'], queryFn: async () => (await api.get('/customers', { params: { per_page: 100 } })).data.data });
 
@@ -69,13 +76,17 @@ export default function QuoteForm() {
             </div>
 
             <div className="card">
-                <div className="flex justify-between mb-4">
+                <div className="flex justify-between items-center mb-3">
                     <h2 className="font-semibold">Line Items</h2>
-                    <button onClick={() => setItems(p => [...p, { id: genId(), type: 'custom', name: '', description: '', unit: 'each', quantity: 1, unit_price: 0, discount_rate: 0, tax_rate: 0 }])} className="btn-secondary text-xs"><Plus className="w-3 h-3 inline mr-1" />Add Item</button>
+                    <button onClick={() => setItems(p => [...p, { id: genId(), type: 'custom', name: '', description: '', unit: 'each', quantity: 1, unit_price: 0, discount_rate: 0, tax_rate: 0 }])} className="btn-secondary text-xs"><Plus className="w-3 h-3 inline mr-1" />Blank row</button>
                 </div>
+                <div className="mb-4"><ItemPicker onSelect={addPicked} /></div>
                 <table className="w-full text-sm">
                     <thead><tr className="border-b text-xs text-gray-500"><th className="text-left py-2">Item</th><th className="text-right py-2 w-16">Qty</th><th className="text-right py-2 w-24">Price</th><th className="text-right py-2 w-16">Disc%</th><th className="text-right py-2 w-16">Tax%</th><th className="text-right py-2 w-24">Total</th><th className="w-8"></th></tr></thead>
                     <tbody>
+                        {items.length === 0 && (
+                            <tr><td colSpan={7} className="py-6 text-center text-sm text-gray-400">No items yet — search above to add a product/service, or add a blank row.</td></tr>
+                        )}
                         {items.map(item => (
                             <tr key={item.id} className="border-b">
                                 <td className="py-2 pr-2"><input className="input text-sm" value={item.name} onChange={e => setItems(p => p.map(i => i.id === item.id ? { ...i, name: e.target.value } : i))} placeholder="Item name" /></td>

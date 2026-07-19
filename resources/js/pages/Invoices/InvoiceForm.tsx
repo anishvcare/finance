@@ -5,6 +5,7 @@ import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { CURRENCIES, getDefaultCurrency } from '../../lib/currencies';
+import ItemPicker, { PickedItem } from '../../components/ItemPicker';
 
 interface LineItem {
     id: string;
@@ -55,9 +56,13 @@ export default function InvoiceForm() {
         internal_notes: '',
     });
 
-    const [items, setItems] = useState<LineItem[]>([
-        { id: generateId(), type: 'custom', name: '', description: '', unit: 'each', quantity: 1, unit_price: 0, discount_rate: 0, tax_rate: 0 },
-    ]);
+    const [items, setItems] = useState<LineItem[]>([]);
+
+    const addPickedItem = (it: PickedItem) => setItems(prev => [...prev, {
+        id: generateId(), type: it.type, product_id: it.product_id, service_id: it.service_id,
+        name: it.name, description: it.description, unit: it.unit || 'each',
+        quantity: 1, unit_price: it.unit_price, discount_rate: 0, tax_rate: it.tax_rate, tax_id: it.tax_id,
+    }]);
 
     // Load customers for dropdown
     const { data: customersData } = useQuery({
@@ -182,18 +187,12 @@ export default function InvoiceForm() {
 
             {/* Line Items */}
             <div className="card">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                     <h2 className="font-semibold text-gray-800">Line Items</h2>
-                    <div className="flex space-x-2">
-                        {productsData?.length > 0 && (
-                            <select className="input text-xs w-auto" onChange={e => { const p = productsData.find((p: any) => p.id === parseInt(e.target.value)); if (p) addProductItem(p); e.target.value = ''; }}>
-                                <option value="">+ Add Product...</option>
-                                {productsData.map((p: any) => <option key={p.id} value={p.id}>{p.name} ({formatMoney(p.sales_price)})</option>)}
-                            </select>
-                        )}
-                        <button onClick={addItem} className="btn-secondary text-xs flex items-center space-x-1"><Plus className="w-3 h-3" /><span>Custom Item</span></button>
-                    </div>
+                    <button onClick={addItem} className="btn-secondary text-xs flex items-center space-x-1"><Plus className="w-3 h-3" /><span>Blank row</span></button>
                 </div>
+
+                <div className="mb-4"><ItemPicker onSelect={addPickedItem} /></div>
 
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
@@ -208,6 +207,9 @@ export default function InvoiceForm() {
                             <th className="w-8"></th>
                         </tr></thead>
                         <tbody>
+                            {items.length === 0 && (
+                                <tr><td colSpan={8} className="py-6 text-center text-sm text-gray-400">No items yet — search above to add a product/service, or add a blank row.</td></tr>
+                            )}
                             {items.map(item => {
                                 const calc = calculateLineTotal(item);
                                 return (

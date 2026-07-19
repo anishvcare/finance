@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import api, { initializeCsrf } from './api';
+import { setDefaultCurrency } from './currencies';
 
 interface User {
     id: number;
@@ -54,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await initializeCsrf();
             const response = await api.get('/auth/user');
             setUser(response.data);
+            setDefaultCurrency(response.data?.current_workspace?.currency);
         } catch {
             setUser(null);
         } finally {
@@ -69,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await initializeCsrf();
         const response = await api.post('/auth/login', { email, password });
         setUser(response.data.user);
+        setDefaultCurrency(response.data.user?.current_workspace?.currency);
     };
 
     const logout = async () => {

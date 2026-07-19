@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { Plus, Search, Users, X, Pencil, Trash2 } from 'lucide-react';
 import CountryStateSelect from '../../components/CountryStateSelect';
 import CurrencySelect from '../../components/CurrencySelect';
+import { getDefaultCurrency } from '../../lib/currencies';
 
 export default function Customers() {
     const [page, setPage] = useState(1);
@@ -103,7 +104,7 @@ export default function Customers() {
 }
 
 function CustomerFormModal({ initial, onClose, onSubmit, saving }: { initial: any | null; onClose: () => void; onSubmit: (d: any) => void; saving: boolean }) {
-    const [form, setForm] = useState({ type: 'individual', name: '', business_name: '', email: '', mobile: '', currency: 'INR', billing_address_line_1: '', billing_city: '', billing_state: '', billing_postal_code: '', billing_country: '', payment_terms: 30, notes: '' });
+    const [form, setForm] = useState({ type: 'individual', name: '', business_name: '', email: '', mobile: '', currency: getDefaultCurrency(), billing_address_line_1: '', billing_city: '', billing_state: '', billing_postal_code: '', billing_country: '', payment_terms: 30, notes: '' });
 
     useEffect(() => {
         if (initial) {
@@ -113,7 +114,7 @@ function CustomerFormModal({ initial, onClose, onSubmit, saving }: { initial: an
                 business_name: initial.business_name || '',
                 email: initial.email || '',
                 mobile: initial.mobile || '',
-                currency: initial.currency || 'INR',
+                currency: initial.currency || getDefaultCurrency(),
                 billing_address_line_1: initial.billing_address_line_1 || '',
                 billing_city: initial.billing_city || '',
                 billing_state: initial.billing_state || '',

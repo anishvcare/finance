@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { CURRENCIES, getDefaultCurrency } from '../../lib/currencies';
 
 interface LineItem {
     id: string;
@@ -45,7 +46,7 @@ export default function InvoiceForm() {
         customer_id: searchParams.get('customer_id') || '',
         invoice_date: new Date().toISOString().split('T')[0],
         due_date: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
-        currency: 'USD',
+        currency: getDefaultCurrency(),
         payment_terms: 30,
         reference_number: '',
         notes: '',
@@ -171,7 +172,7 @@ export default function InvoiceForm() {
                     <div><label className="label">Due Date</label><input type="date" className="input" value={form.due_date} onChange={e => setForm(p => ({ ...p, due_date: e.target.value }))} /></div>
                     <div><label className="label">Currency</label>
                         <select className="input" value={form.currency} onChange={e => setForm(p => ({ ...p, currency: e.target.value }))}>
-                            <option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="INR">INR</option><option value="AUD">AUD</option>
+                            {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
                         </select>
                     </div>
                     <div><label className="label">Reference</label><input className="input" value={form.reference_number} onChange={e => setForm(p => ({ ...p, reference_number: e.target.value }))} placeholder="PO number, ref..." /></div>

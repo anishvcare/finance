@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { Building2, FileText, Palette, CreditCard, Bell, Users } from 'lucide-react';
 import CountryStateSelect from '../../components/CountryStateSelect';
 import CurrencySelect from '../../components/CurrencySelect';
+import { setDefaultCurrency } from '../../lib/currencies';
 
 const tabs = [
     { id: 'workspace', label: 'Organisation', icon: Building2 },
@@ -40,7 +41,7 @@ export default function Settings() {
             const r = await api.put('/settings', data);
             return r.data.data;
         },
-        onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['settings'] }); toast.success('Settings saved.'); },
+        onSuccess: (data: any) => { if (data?.currency) setDefaultCurrency(data.currency); queryClient.invalidateQueries({ queryKey: ['settings'] }); toast.success('Settings saved.'); },
         onError: (err: any) => { toast.error(extractError(err, 'Failed to save settings.')); },
     });
 

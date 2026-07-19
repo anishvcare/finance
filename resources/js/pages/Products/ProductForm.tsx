@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { ArrowLeft } from 'lucide-react';
+import { getDefaultCurrency } from '../../lib/currencies';
 
 export default function ProductForm() {
     const { id } = useParams();
@@ -13,7 +14,7 @@ export default function ProductForm() {
     const [form, setForm] = useState({
         name: '', code: '', sku: '', barcode: '', description: '', category_id: '',
         unit: 'each', sales_price: 0, purchase_price: 0, cost_price: 0, wholesale_price: 0,
-        tax_id: '', tax_inclusive: false, currency: 'USD', track_inventory: false,
+        tax_id: '', tax_inclusive: false, currency: getDefaultCurrency(), track_inventory: false,
         opening_stock: 0, low_stock_level: 0, supplier_id: '', notes: '',
     });
 
@@ -37,7 +38,7 @@ export default function ProductForm() {
                 sales_price: existing.sales_price || 0, purchase_price: existing.purchase_price || 0,
                 cost_price: existing.cost_price || 0, wholesale_price: existing.wholesale_price || 0,
                 tax_id: existing.tax_id?.toString() || '', tax_inclusive: existing.tax_inclusive || false,
-                currency: existing.currency || 'USD', track_inventory: existing.track_inventory || false,
+                currency: existing.currency || getDefaultCurrency(), track_inventory: existing.track_inventory || false,
                 opening_stock: existing.opening_stock || 0, low_stock_level: existing.low_stock_level || 0,
                 supplier_id: existing.supplier_id?.toString() || '', notes: existing.notes || '',
             });

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Plus, Search, Package, Pencil, Copy, Archive, RotateCcw } from 'lucide-react';
+import { formatMoney } from '../../lib/currencies';
 
 interface Product {
     id: number;
@@ -18,10 +19,6 @@ interface Product {
     low_stock_level: number | null;
     category: { id: number; name: string } | null;
     tax: { id: number; name: string; rate: number } | null;
-}
-
-function formatMoney(amount: number, currency = 'INR'): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format((amount || 0) / 100);
 }
 
 export default function Products() {

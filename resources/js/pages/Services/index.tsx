@@ -3,10 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Plus, Search, Briefcase, X, Pencil, Trash2 } from 'lucide-react';
-
-function formatMoney(amount: number, currency = 'INR'): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format((amount || 0) / 100);
-}
+import { formatMoney } from '../../lib/currencies';
 
 export default function Services() {
     const [page, setPage] = useState(1);

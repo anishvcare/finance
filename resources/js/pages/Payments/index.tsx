@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
-import { formatMoney } from '../../lib/currencies';
+import { formatMoney, getDefaultCurrency } from '../../lib/currencies';
 import { Plus, ArrowDownLeft, ArrowUpRight, X, Wallet } from 'lucide-react';
 
 const today = () => new Date().toISOString().split('T')[0];
@@ -81,7 +81,7 @@ function PaymentFormModal({ type, onClose, onSubmit, saving }: { type: 'incoming
         queryKey: [type === 'incoming' ? 'customers' : 'suppliers', 'all'],
         queryFn: async () => (await api.get(type === 'incoming' ? '/customers' : '/suppliers', { params: { per_page: 200 } })).data,
     });
-    const [form, setForm] = useState({ party_id: '', amount: '', currency: 'INR', payment_date: today(), payment_method: 'bank_transfer', account_id: '', reference_number: '', notes: '' });
+    const [form, setForm] = useState({ party_id: '', amount: '', currency: getDefaultCurrency(), payment_date: today(), payment_method: 'bank_transfer', account_id: '', reference_number: '', notes: '' });
     const update = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
 
     const defaultAccount = accounts?.data?.find((a: any) => a.is_default)?.id || accounts?.data?.[0]?.id || '';

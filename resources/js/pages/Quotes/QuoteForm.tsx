@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { getDefaultCurrency } from '../../lib/currencies';
 
 interface LineItem {
     id: string; type: 'product' | 'service' | 'custom'; name: string; description: string;
@@ -25,7 +26,7 @@ export default function QuoteForm() {
     const navigate = useNavigate();
     const isEdit = !!id;
 
-    const [form, setForm] = useState({ customer_id: '', quote_date: new Date().toISOString().split('T')[0], expiry_date: '', currency: 'USD', notes: '', terms: '', customer_message: '' });
+    const [form, setForm] = useState({ customer_id: '', quote_date: new Date().toISOString().split('T')[0], expiry_date: '', currency: getDefaultCurrency(), notes: '', terms: '', customer_message: '' });
     const [items, setItems] = useState<LineItem[]>([{ id: genId(), type: 'custom', name: '', description: '', unit: 'each', quantity: 1, unit_price: 0, discount_rate: 0, tax_rate: 0 }]);
 
     const { data: customers } = useQuery({ queryKey: ['customers-list'], queryFn: async () => (await api.get('/customers', { params: { per_page: 100 } })).data.data });

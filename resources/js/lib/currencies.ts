@@ -49,10 +49,23 @@ export function currencySymbol(code: string): string {
     return symbolMap[code] || code;
 }
 
-export function formatMoney(amountInCents: number, currency = 'INR'): string {
+// The workspace's default currency, kept in sync from the auth context.
+// Used as the fallback whenever a record doesn't carry its own currency.
+let defaultCurrency = 'INR';
+
+export function setDefaultCurrency(code: string | null | undefined): void {
+    if (code) defaultCurrency = code;
+}
+
+export function getDefaultCurrency(): string {
+    return defaultCurrency;
+}
+
+export function formatMoney(amountInCents: number, currency?: string | null): string {
+    const cur = currency || defaultCurrency;
     try {
-        return new Intl.NumberFormat(undefined, { style: 'currency', currency, minimumFractionDigits: 2 }).format((amountInCents || 0) / 100);
+        return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, minimumFractionDigits: 2 }).format((amountInCents || 0) / 100);
     } catch {
-        return `${currencySymbol(currency)}${((amountInCents || 0) / 100).toFixed(2)}`;
+        return `${currencySymbol(cur)}${((amountInCents || 0) / 100).toFixed(2)}`;
     }
 }

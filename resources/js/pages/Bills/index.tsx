@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
-import { formatMoney } from '../../lib/currencies';
+import { formatMoney, getDefaultCurrency } from '../../lib/currencies';
 import { Plus, Search, Receipt, X, Trash2, CreditCard } from 'lucide-react';
 
 const STATUS_STYLES: Record<string, string> = {
@@ -109,7 +109,7 @@ export default function Bills() {
 
 function BillFormModal({ onClose, onSubmit, saving }: { onClose: () => void; onSubmit: (d: any) => void; saving: boolean }) {
     const { data: suppliers } = useQuery({ queryKey: ['suppliers', 'all'], queryFn: async () => (await api.get('/suppliers', { params: { per_page: 200 } })).data });
-    const [form, setForm] = useState({ supplier_id: '', supplier_invoice_number: '', bill_date: today(), due_date: today(), currency: 'INR', notes: '' });
+    const [form, setForm] = useState({ supplier_id: '', supplier_invoice_number: '', bill_date: today(), due_date: today(), currency: getDefaultCurrency(), notes: '' });
     const [items, setItems] = useState([{ type: 'expense', name: '', quantity: 1, unit_price: 0, tax_rate: 0 }]);
 
     const update = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));

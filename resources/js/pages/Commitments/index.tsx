@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
-import { formatMoney } from '../../lib/currencies';
+import { formatMoney, getDefaultCurrency } from '../../lib/currencies';
 import { Plus, Search, Handshake, X, Trash2 } from 'lucide-react';
 
 const STATUS_STYLES: Record<string, string> = {
@@ -119,7 +119,7 @@ export default function Commitments() {
 
 function CommitmentFormModal({ onClose, onSubmit, saving }: { onClose: () => void; onSubmit: (d: any) => void; saving: boolean }) {
     const { data: customers } = useQuery({ queryKey: ['customers', 'all'], queryFn: async () => (await api.get('/customers', { params: { per_page: 200 } })).data });
-    const [form, setForm] = useState({ title: '', description: '', type: '', priority: 'medium', due_date: today(), customer_id: '', amount: '', currency: 'INR', notes: '' });
+    const [form, setForm] = useState({ title: '', description: '', type: '', priority: 'medium', due_date: today(), customer_id: '', amount: '', currency: getDefaultCurrency(), notes: '' });
     const update = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
 
     const submit = () => onSubmit({

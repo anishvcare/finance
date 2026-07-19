@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
+import { formatMoney } from '../../lib/currencies';
 import {
     TrendingUp, TrendingDown, Clock, AlertTriangle,
     Plus, Receipt, CreditCard, Camera, CheckSquare
@@ -35,14 +36,6 @@ interface DashboardData {
         category: { name: string; color: string } | null;
         account: { name: string } | null;
     }>;
-}
-
-function formatMoney(amount: number, currency = 'USD'): string {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency,
-        minimumFractionDigits: 2,
-    }).format(amount / 100); // Convert from minor units
 }
 
 export default function Dashboard() {

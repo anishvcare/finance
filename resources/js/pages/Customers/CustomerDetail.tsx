@@ -3,10 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { ArrowLeft, Mail, Phone, MapPin, FileText, CreditCard } from 'lucide-react';
-
-function formatMoney(amount: number, currency = 'USD'): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format(amount / 100);
-}
+import { formatMoney } from '../../lib/currencies';
 
 export default function CustomerDetail() {
     const { id } = useParams();

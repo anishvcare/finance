@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
+import { formatMoney } from '../../lib/currencies';
 import { Plus, Search, Filter, Download, Mail, Eye } from 'lucide-react';
 
 interface Invoice {
@@ -21,10 +22,6 @@ interface PaginatedResponse {
     current_page: number;
     last_page: number;
     total: number;
-}
-
-function formatMoney(amount: number, currency = 'USD'): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format(amount / 100);
 }
 
 const statusColors: Record<string, string> = {

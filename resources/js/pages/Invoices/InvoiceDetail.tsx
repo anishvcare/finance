@@ -4,10 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Download, Mail, Share2, CreditCard, Edit, CheckCircle, XCircle } from 'lucide-react';
-
-function formatMoney(amount: number, currency = 'USD'): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format(amount / 100);
-}
+import { formatMoney } from '../../lib/currencies';
 
 const statusColors: Record<string, string> = {
     draft: 'bg-gray-100 text-gray-700', finalised: 'bg-blue-100 text-blue-700', sent: 'bg-indigo-100 text-indigo-700',

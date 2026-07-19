@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { Plus, Search, Truck, X, Pencil, Trash2 } from 'lucide-react';
 import CountryStateSelect from '../../components/CountryStateSelect';
 import CurrencySelect from '../../components/CurrencySelect';
+import { getDefaultCurrency } from '../../lib/currencies';
 
 export default function Suppliers() {
     const [page, setPage] = useState(1);
@@ -98,13 +99,13 @@ export default function Suppliers() {
 }
 
 function SupplierFormModal({ initial, onClose, onSubmit, saving }: { initial: any | null; onClose: () => void; onSubmit: (d: any) => void; saving: boolean }) {
-    const [form, setForm] = useState({ name: '', business_name: '', contact_person: '', email: '', mobile: '', currency: 'INR', address_line_1: '', city: '', state: '', postal_code: '', country: '', tax_number: '', payment_terms: 30, notes: '' });
+    const [form, setForm] = useState({ name: '', business_name: '', contact_person: '', email: '', mobile: '', currency: getDefaultCurrency(), address_line_1: '', city: '', state: '', postal_code: '', country: '', tax_number: '', payment_terms: 30, notes: '' });
 
     useEffect(() => {
         if (initial) {
             setForm({
                 name: initial.name || '', business_name: initial.business_name || '', contact_person: initial.contact_person || '',
-                email: initial.email || '', mobile: initial.mobile || '', currency: initial.currency || 'INR', address_line_1: initial.address_line_1 || '',
+                email: initial.email || '', mobile: initial.mobile || '', currency: initial.currency || getDefaultCurrency(), address_line_1: initial.address_line_1 || '',
                 city: initial.city || '', state: initial.state || '', postal_code: initial.postal_code || '',
                 country: initial.country || '', tax_number: initial.tax_number || '', payment_terms: initial.payment_terms ?? 30, notes: initial.notes || '',
             });

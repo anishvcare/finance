@@ -142,6 +142,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/accounts/{account}', [\App\Http\Controllers\Api\AccountController::class, 'update']);
         Route::delete('/accounts/{account}', [\App\Http\Controllers\Api\AccountController::class, 'destroy']);
 
+        // Leads
+        Route::get('/leads/stats', [\App\Http\Controllers\Api\LeadController::class, 'stats']);
+        Route::get('/leads', [\App\Http\Controllers\Api\LeadController::class, 'index']);
+        Route::post('/leads', [\App\Http\Controllers\Api\LeadController::class, 'store']);
+        Route::get('/leads/{lead}', [\App\Http\Controllers\Api\LeadController::class, 'show']);
+        Route::put('/leads/{lead}', [\App\Http\Controllers\Api\LeadController::class, 'update']);
+        Route::delete('/leads/{lead}', [\App\Http\Controllers\Api\LeadController::class, 'destroy']);
+        Route::post('/leads/{lead}/convert', [\App\Http\Controllers\Api\LeadController::class, 'convert']);
+
         // Contacts
         Route::get('/contacts', [\App\Http\Controllers\Api\ContactController::class, 'index']);
         Route::post('/contacts', [\App\Http\Controllers\Api\ContactController::class, 'store']);

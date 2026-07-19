@@ -5,7 +5,7 @@ import {
     LayoutDashboard, Package, Briefcase, Users, Truck, FileText,
     Receipt, CreditCard, ArrowLeftRight, CheckSquare, Target,
     Contact, Calendar, BarChart3, Settings, Menu, X, LogOut,
-    ChevronDown, Bell, Plus
+    ChevronDown, Bell, Plus, UserPlus
 } from 'lucide-react';
 
 interface NavItem {
@@ -20,6 +20,7 @@ const navItems: NavItem[] = [
     { label: 'Services', path: '/services', icon: Briefcase },
     { label: 'Customers', path: '/customers', icon: Users },
     { label: 'Suppliers', path: '/suppliers', icon: Truck },
+    { label: 'Leads', path: '/leads', icon: UserPlus },
     { label: 'Quotes', path: '/quotes', icon: FileText },
     { label: 'Invoices', path: '/invoices', icon: Receipt },
     { label: 'Bills', path: '/bills', icon: CreditCard },

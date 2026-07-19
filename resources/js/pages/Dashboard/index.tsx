@@ -5,7 +5,7 @@ import api from '../../lib/api';
 import { formatMoney } from '../../lib/currencies';
 import {
     TrendingUp, TrendingDown, Clock, AlertTriangle,
-    Plus, Receipt, CreditCard, Camera, CheckSquare
+    Plus, Receipt, CreditCard, Camera, CheckSquare, UserPlus
 } from 'lucide-react';
 
 interface DashboardData {
@@ -25,6 +25,12 @@ interface DashboardData {
         due_today: number;
         overdue: number;
         commitments_due_soon: number;
+    };
+    leads?: {
+        open: number;
+        urgent: number;
+        follow_up_today: number;
+        follow_up_overdue: number;
     };
     recent_transactions: Array<{
         id: number;
@@ -64,6 +70,7 @@ export default function Dashboard() {
 
     const biz = data?.business;
     const tasks = data?.tasks;
+    const leads = data?.leads;
 
     return (
         <div className="space-y-6">
@@ -109,6 +116,32 @@ export default function Dashboard() {
                     {(biz?.overdue_bill_count || 0) > 0 && (
                         <p className="mt-1 text-sm text-red-600">{biz?.overdue_bill_count} overdue</p>
                     )}
+                </div>
+            </div>
+
+            {/* Leads */}
+            <div className="bg-white rounded-xl p-6 border border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900 flex items-center"><UserPlus className="w-5 h-5 text-blue-600 mr-2" />Leads</h2>
+                    <Link to="/leads" className="text-sm text-blue-600 hover:underline">View all</Link>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <Link to="/leads" className="rounded-lg border border-gray-100 p-4 hover:bg-gray-50">
+                        <p className="text-2xl font-bold text-gray-900">{leads?.open || 0}</p>
+                        <p className="text-xs text-gray-500 uppercase tracking-wide">Open Leads</p>
+                    </Link>
+                    <Link to="/leads" className="rounded-lg border border-rose-100 bg-rose-50 p-4 hover:bg-rose-100">
+                        <p className="text-2xl font-bold text-rose-700">{leads?.urgent || 0}</p>
+                        <p className="text-xs text-rose-600 uppercase tracking-wide">Urgent</p>
+                    </Link>
+                    <Link to="/leads" className="rounded-lg border border-amber-100 bg-amber-50 p-4 hover:bg-amber-100">
+                        <p className="text-2xl font-bold text-amber-700">{leads?.follow_up_today || 0}</p>
+                        <p className="text-xs text-amber-600 uppercase tracking-wide">Follow-up Today</p>
+                    </Link>
+                    <Link to="/leads" className="rounded-lg border border-red-100 bg-red-50 p-4 hover:bg-red-100">
+                        <p className="text-2xl font-bold text-red-700">{leads?.follow_up_overdue || 0}</p>
+                        <p className="text-xs text-red-600 uppercase tracking-wide">Overdue</p>
+                    </Link>
                 </div>
             </div>
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Bill;
 use App\Models\Commitment;
 use App\Models\Invoice;
+use App\Models\Lead;
 use App\Models\Payment;
 use App\Models\Task;
 use App\Models\Transaction;
@@ -67,6 +68,17 @@ class DashboardController extends Controller
             ->where('due_date', '<=', now()->addDays(7))
             ->count();
 
+        // Leads
+        $openLeadStages = ['new', 'contacted', 'qualified', 'proposal', 'negotiation'];
+        $leadSummary = Lead::where('workspace_id', $workspaceId)
+            ->selectRaw("
+                COUNT(CASE WHEN stage IN ('new','contacted','qualified','proposal','negotiation') THEN 1 END) as open_leads,
+                COUNT(CASE WHEN priority = 'urgent' AND stage NOT IN ('won','lost') THEN 1 END) as urgent,
+                COUNT(CASE WHEN next_follow_up_date = ? AND stage NOT IN ('won','lost') THEN 1 END) as follow_up_today,
+                COUNT(CASE WHEN next_follow_up_date < ? AND next_follow_up_date IS NOT NULL AND stage NOT IN ('won','lost') THEN 1 END) as follow_up_overdue
+            ", [today()->toDateString(), today()->toDateString()])
+            ->first();
+
         // Recent transactions
         $recentTransactions = Transaction::where('workspace_id', $workspaceId)
             ->with('category:id,name,color', 'account:id,name')
@@ -91,6 +103,12 @@ class DashboardController extends Controller
                 'due_today' => $tasksDueToday,
                 'overdue' => $overdueTasks,
                 'commitments_due_soon' => $commitmentsDueSoon,
+            ],
+            'leads' => [
+                'open' => $leadSummary->open_leads ?? 0,
+                'urgent' => $leadSummary->urgent ?? 0,
+                'follow_up_today' => $leadSummary->follow_up_today ?? 0,
+                'follow_up_overdue' => $leadSummary->follow_up_overdue ?? 0,
             ],
             'recent_transactions' => $recentTransactions,
         ]);

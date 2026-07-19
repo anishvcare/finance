@@ -11,6 +11,7 @@ const Services = lazy(() => import('./pages/Services'));
 const Customers = lazy(() => import('./pages/Customers'));
 const CustomerDetail = lazy(() => import('./pages/Customers/CustomerDetail'));
 const Suppliers = lazy(() => import('./pages/Suppliers'));
+const Leads = lazy(() => import('./pages/Leads'));
 const Quotes = lazy(() => import('./pages/Quotes'));
 const QuoteForm = lazy(() => import('./pages/Quotes/QuoteForm'));
 const Invoices = lazy(() => import('./pages/Invoices'));
@@ -75,6 +76,7 @@ export function AppRoutes() {
                     <Route path="/customers" element={<Customers />} />
                     <Route path="/customers/:id" element={<CustomerDetail />} />
                     <Route path="/suppliers" element={<Suppliers />} />
+                    <Route path="/leads" element={<Leads />} />
                     <Route path="/quotes" element={<Quotes />} />
                     <Route path="/quotes/create" element={<QuoteForm />} />
                     <Route path="/quotes/:id" element={<QuoteForm />} />

@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Hash;
 
 class InstallController extends Controller
 {
+    public function __construct()
+    {
+        // Never let PHP warnings/notices/deprecations leak into the JSON
+        // responses used by the installer wizard (they break JSON parsing
+        // on shared hosting where display_errors is often forced on).
+        @ini_set('display_errors', '0');
+    }
+
     public function index()
     {
         if (file_exists(storage_path('installed.lock'))) {
@@ -157,21 +165,30 @@ class InstallController extends Controller
 
     public function createAdmin(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'is_super_admin' => true,
-            'email_verified_at' => now(),
-        ]);
+            // Idempotent: if this admin email already exists (e.g. the user
+            // clicked "Retry Installation"), update it instead of failing on
+            // the unique constraint.
+            User::updateOrCreate(
+                ['email' => $validated['email']],
+                [
+                    'name' => $validated['name'],
+                    'password' => Hash::make($validated['password']),
+                    'is_super_admin' => true,
+                    'email_verified_at' => now(),
+                ]
+            );
 
-        return response()->json(['success' => true, 'message' => 'Admin account created.']);
+            return response()->json(['success' => true, 'message' => 'Admin account created.']);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Admin creation failed: ' . $e->getMessage()], 422);
+        }
     }
 
     public function finalize(): JsonResponse
@@ -182,8 +199,19 @@ class InstallController extends Controller
                 Artisan::call('key:generate', ['--force' => true]);
             }
 
-            // Create storage link
-            Artisan::call('storage:link');
+            // Create the public storage symlink WITHOUT Artisan storage:link,
+            // because symlink() is disabled on many shared hosts and would emit
+            // a raw PHP warning that corrupts the JSON response. This is
+            // optional — file serving falls back gracefully if it can't link.
+            try {
+                $link = public_path('storage');
+                $target = storage_path('app/public');
+                if (! file_exists($link) && function_exists('symlink') && ! in_array('symlink', explode(',', (string) ini_get('disable_functions')))) {
+                    @symlink($target, $link);
+                }
+            } catch (\Throwable $e) {
+                // Storage link is optional; ignore and continue.
+            }
 
             // Lock installation
             file_put_contents(storage_path('installed.lock'), json_encode([
@@ -196,7 +224,7 @@ class InstallController extends Controller
                 'message' => 'Installation complete! You can now log in.',
                 'login_url' => '/login',
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
     }

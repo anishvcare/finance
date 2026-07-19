@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import api from '../../lib/api';
+import api, { downloadFile } from '../../lib/api';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Plus, Trash2, Download } from 'lucide-react';
 import { getDefaultCurrency } from '../../lib/currencies';
@@ -68,9 +68,9 @@ export default function QuoteForm() {
                     <h1 className="page-title">{isEdit ? 'Edit Quote' : 'New Quote'}</h1>
                 </div>
                 {isEdit && (
-                    <a href={`/api/quotes/${id}/pdf`} target="_blank" rel="noopener noreferrer" className="btn-secondary flex items-center space-x-1">
+                    <button onClick={() => downloadFile(`/quotes/${id}/pdf`, `quote-${id}.pdf`).catch(() => toast.error('Failed to download PDF.'))} className="btn-secondary flex items-center space-x-1">
                         <Download className="w-4 h-4" /><span>Download PDF</span>
-                    </a>
+                    </button>
                 )}
             </div>
 

@@ -39,4 +39,21 @@ export async function initializeCsrf(): Promise<void> {
     await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
 }
 
+/**
+ * Downloads a file (e.g. a PDF) through the authenticated API client.
+ * Using axios (with session cookies) avoids the login redirect that
+ * happens when opening an /api/... URL as a top-level browser navigation.
+ */
+export async function downloadFile(path: string, filename: string): Promise<void> {
+    const res = await api.get(path, { responseType: 'blob' });
+    const blobUrl = URL.createObjectURL(res.data as Blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+}
+
 export default api;

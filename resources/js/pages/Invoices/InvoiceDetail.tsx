@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '../../lib/api';
+import api, { downloadFile } from '../../lib/api';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Download, Mail, Share2, CreditCard, Edit, CheckCircle, XCircle } from 'lucide-react';
 import { formatMoney } from '../../lib/currencies';
@@ -67,7 +67,7 @@ export default function InvoiceDetail() {
                             <button onClick={() => setShowPayment(true)} className="btn-primary flex items-center space-x-1 text-sm"><CreditCard className="w-4 h-4" /><span>Record Payment</span></button>
                         </>
                     )}
-                    <a href={`/api/invoices/${id}/pdf`} target="_blank" className="btn-secondary flex items-center space-x-1 text-sm"><Download className="w-4 h-4" /><span>PDF</span></a>
+                    <button onClick={() => downloadFile(`/invoices/${id}/pdf`, `${invoice.invoice_number}.pdf`)} className="btn-secondary flex items-center space-x-1 text-sm"><Download className="w-4 h-4" /><span>PDF</span></button>
                 </div>
             </div>
 

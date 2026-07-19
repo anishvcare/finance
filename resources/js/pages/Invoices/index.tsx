@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import api from '../../lib/api';
+import api, { downloadFile } from '../../lib/api';
 import { formatMoney } from '../../lib/currencies';
 import { Plus, Search, Filter, Download, Mail, Eye } from 'lucide-react';
 
@@ -150,9 +150,9 @@ export default function Invoices() {
                                                 <Link to={`/invoices/${invoice.id}`} className="p-1 text-gray-400 hover:text-blue-600" title="View">
                                                     <Eye className="w-4 h-4" />
                                                 </Link>
-                                                <a href={`/api/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener noreferrer" className="p-1 text-gray-400 hover:text-gray-700" title="Download PDF">
+                                                <button onClick={() => downloadFile(`/invoices/${invoice.id}/pdf`, `${invoice.invoice_number}.pdf`)} className="p-1 text-gray-400 hover:text-gray-700" title="Download PDF">
                                                     <Download className="w-4 h-4" />
-                                                </a>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>

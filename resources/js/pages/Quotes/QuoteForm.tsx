@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Download } from 'lucide-react';
 import { getDefaultCurrency } from '../../lib/currencies';
 import ItemPicker, { PickedItem } from '../../components/ItemPicker';
 
@@ -62,9 +62,16 @@ export default function QuoteForm() {
 
     return (
         <div className="space-y-6 max-w-5xl">
-            <div className="flex items-center space-x-3">
-                <button onClick={() => navigate(-1)} className="p-2 text-gray-400 hover:text-gray-600"><ArrowLeft className="w-5 h-5" /></button>
-                <h1 className="page-title">{isEdit ? 'Edit Quote' : 'New Quote'}</h1>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                    <button onClick={() => navigate(-1)} className="p-2 text-gray-400 hover:text-gray-600"><ArrowLeft className="w-5 h-5" /></button>
+                    <h1 className="page-title">{isEdit ? 'Edit Quote' : 'New Quote'}</h1>
+                </div>
+                {isEdit && (
+                    <a href={`/api/quotes/${id}/pdf`} target="_blank" rel="noopener noreferrer" className="btn-secondary flex items-center space-x-1">
+                        <Download className="w-4 h-4" /><span>Download PDF</span>
+                    </a>
+                )}
             </div>
 
             <div className="card">

@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Plus, Search, Users, X, Pencil, Trash2 } from 'lucide-react';
+import CountryStateSelect from '../../components/CountryStateSelect';
+import CurrencySelect from '../../components/CurrencySelect';
 
 export default function Customers() {
     const [page, setPage] = useState(1);
@@ -101,7 +103,7 @@ export default function Customers() {
 }
 
 function CustomerFormModal({ initial, onClose, onSubmit, saving }: { initial: any | null; onClose: () => void; onSubmit: (d: any) => void; saving: boolean }) {
-    const [form, setForm] = useState({ type: 'individual', name: '', business_name: '', email: '', mobile: '', billing_address_line_1: '', billing_city: '', billing_state: '', billing_postal_code: '', billing_country: '', payment_terms: 30, notes: '' });
+    const [form, setForm] = useState({ type: 'individual', name: '', business_name: '', email: '', mobile: '', currency: 'INR', billing_address_line_1: '', billing_city: '', billing_state: '', billing_postal_code: '', billing_country: '', payment_terms: 30, notes: '' });
 
     useEffect(() => {
         if (initial) {
@@ -111,6 +113,7 @@ function CustomerFormModal({ initial, onClose, onSubmit, saving }: { initial: an
                 business_name: initial.business_name || '',
                 email: initial.email || '',
                 mobile: initial.mobile || '',
+                currency: initial.currency || 'INR',
                 billing_address_line_1: initial.billing_address_line_1 || '',
                 billing_city: initial.billing_city || '',
                 billing_state: initial.billing_state || '',
@@ -138,14 +141,14 @@ function CustomerFormModal({ initial, onClose, onSubmit, saving }: { initial: an
                         <div><label className="label">Business Name</label><input className="input" value={form.business_name} onChange={e => update('business_name', e.target.value)} /></div>
                         <div><label className="label">Email</label><input className="input" type="email" value={form.email} onChange={e => update('email', e.target.value)} /></div>
                         <div><label className="label">Mobile</label><input className="input" value={form.mobile} onChange={e => update('mobile', e.target.value)} /></div>
+                        <CurrencySelect value={form.currency} onChange={v => update('currency', v)} />
                     </div>
                     <h3 className="font-medium text-gray-800 pt-2">Billing Address</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2"><label className="label">Address</label><input className="input" value={form.billing_address_line_1} onChange={e => update('billing_address_line_1', e.target.value)} /></div>
+                        <CountryStateSelect country={form.billing_country} state={form.billing_state} onCountryChange={v => update('billing_country', v)} onStateChange={v => update('billing_state', v)} />
                         <div><label className="label">City</label><input className="input" value={form.billing_city} onChange={e => update('billing_city', e.target.value)} /></div>
-                        <div><label className="label">State</label><input className="input" value={form.billing_state} onChange={e => update('billing_state', e.target.value)} /></div>
                         <div><label className="label">Postal Code</label><input className="input" value={form.billing_postal_code} onChange={e => update('billing_postal_code', e.target.value)} /></div>
-                        <div><label className="label">Country</label><input className="input" value={form.billing_country} onChange={e => update('billing_country', e.target.value)} /></div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label className="label">Payment Terms (days)</label><input className="input" type="number" value={form.payment_terms} onChange={e => update('payment_terms', parseInt(e.target.value) || 0)} /></div>

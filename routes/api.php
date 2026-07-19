@@ -134,6 +134,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/commitments/{commitment}', [\App\Http\Controllers\Api\CommitmentController::class, 'destroy']);
         Route::post('/commitments/{commitment}/milestones', [\App\Http\Controllers\Api\CommitmentController::class, 'addMilestone']);
 
+        // Accounts
+        Route::get('/accounts', [\App\Http\Controllers\Api\AccountController::class, 'index']);
+        Route::post('/accounts', [\App\Http\Controllers\Api\AccountController::class, 'store']);
+        Route::put('/accounts/{account}', [\App\Http\Controllers\Api\AccountController::class, 'update']);
+        Route::delete('/accounts/{account}', [\App\Http\Controllers\Api\AccountController::class, 'destroy']);
+
+        // Contacts
+        Route::get('/contacts', [\App\Http\Controllers\Api\ContactController::class, 'index']);
+        Route::post('/contacts', [\App\Http\Controllers\Api\ContactController::class, 'store']);
+        Route::get('/contacts/{contact}', [\App\Http\Controllers\Api\ContactController::class, 'show']);
+        Route::put('/contacts/{contact}', [\App\Http\Controllers\Api\ContactController::class, 'update']);
+        Route::delete('/contacts/{contact}', [\App\Http\Controllers\Api\ContactController::class, 'destroy']);
+
         // Reports
         Route::get('/reports/{type}', [\App\Http\Controllers\Api\ReportController::class, 'show']);
 

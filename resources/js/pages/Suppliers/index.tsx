@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Plus, Search, Truck, X, Pencil, Trash2 } from 'lucide-react';
+import CountryStateSelect from '../../components/CountryStateSelect';
+import CurrencySelect from '../../components/CurrencySelect';
 
 export default function Suppliers() {
     const [page, setPage] = useState(1);
@@ -96,13 +98,13 @@ export default function Suppliers() {
 }
 
 function SupplierFormModal({ initial, onClose, onSubmit, saving }: { initial: any | null; onClose: () => void; onSubmit: (d: any) => void; saving: boolean }) {
-    const [form, setForm] = useState({ name: '', business_name: '', contact_person: '', email: '', mobile: '', address_line_1: '', city: '', state: '', postal_code: '', country: '', tax_number: '', payment_terms: 30, notes: '' });
+    const [form, setForm] = useState({ name: '', business_name: '', contact_person: '', email: '', mobile: '', currency: 'INR', address_line_1: '', city: '', state: '', postal_code: '', country: '', tax_number: '', payment_terms: 30, notes: '' });
 
     useEffect(() => {
         if (initial) {
             setForm({
                 name: initial.name || '', business_name: initial.business_name || '', contact_person: initial.contact_person || '',
-                email: initial.email || '', mobile: initial.mobile || '', address_line_1: initial.address_line_1 || '',
+                email: initial.email || '', mobile: initial.mobile || '', currency: initial.currency || 'INR', address_line_1: initial.address_line_1 || '',
                 city: initial.city || '', state: initial.state || '', postal_code: initial.postal_code || '',
                 country: initial.country || '', tax_number: initial.tax_number || '', payment_terms: initial.payment_terms ?? 30, notes: initial.notes || '',
             });
@@ -126,14 +128,14 @@ function SupplierFormModal({ initial, onClose, onSubmit, saving }: { initial: an
                         <div><label className="label">Email</label><input className="input" type="email" value={form.email} onChange={e => update('email', e.target.value)} /></div>
                         <div><label className="label">Mobile</label><input className="input" value={form.mobile} onChange={e => update('mobile', e.target.value)} /></div>
                         <div><label className="label">Tax Number</label><input className="input" value={form.tax_number} onChange={e => update('tax_number', e.target.value)} /></div>
+                        <CurrencySelect value={form.currency} onChange={v => update('currency', v)} />
                     </div>
                     <h3 className="font-medium text-gray-800 pt-2">Address</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2"><label className="label">Address</label><input className="input" value={form.address_line_1} onChange={e => update('address_line_1', e.target.value)} /></div>
+                        <CountryStateSelect country={form.country} state={form.state} onCountryChange={v => update('country', v)} onStateChange={v => update('state', v)} />
                         <div><label className="label">City</label><input className="input" value={form.city} onChange={e => update('city', e.target.value)} /></div>
-                        <div><label className="label">State</label><input className="input" value={form.state} onChange={e => update('state', e.target.value)} /></div>
                         <div><label className="label">Postal Code</label><input className="input" value={form.postal_code} onChange={e => update('postal_code', e.target.value)} /></div>
-                        <div><label className="label">Country</label><input className="input" value={form.country} onChange={e => update('country', e.target.value)} /></div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label className="label">Payment Terms (days)</label><input className="input" type="number" value={form.payment_terms} onChange={e => update('payment_terms', parseInt(e.target.value) || 0)} /></div>

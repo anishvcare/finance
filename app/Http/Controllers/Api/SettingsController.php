@@ -12,9 +12,15 @@ class SettingsController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $settings = WorkspaceSettings::where('workspace_id', $request->user()->current_workspace_id)->first();
+        $workspaceId = $request->user()->current_workspace_id;
+        $settings = WorkspaceSettings::firstOrCreate(['workspace_id' => $workspaceId]);
+        $workspace = \App\Models\Workspace::find($workspaceId);
 
-        return response()->json(['data' => $settings]);
+        $data = $settings->toArray();
+        $data['currency'] = $workspace?->currency;
+        $data['timezone'] = $workspace?->timezone;
+
+        return response()->json(['data' => $data]);
     }
 
     public function update(Request $request): JsonResponse
@@ -53,14 +59,33 @@ class SettingsController extends Controller
             'default_payment_terms' => 'nullable|integer|min:0|max:365',
             'invoice_template' => 'nullable|string|in:clean,modern,compact',
             'accent_color' => 'nullable|string|max:7',
+            'currency' => 'nullable|string|size:3',
+            'timezone' => 'nullable|string|max:64',
         ]);
 
+        $workspaceId = $request->user()->current_workspace_id;
+
+        // Currency and timezone live on the workspace, not workspace_settings.
+        $workspaceUpdates = array_filter([
+            'currency' => $validated['currency'] ?? null,
+            'timezone' => $validated['timezone'] ?? null,
+        ], fn ($v) => !is_null($v));
+        if (!empty($workspaceUpdates)) {
+            \App\Models\Workspace::where('id', $workspaceId)->update($workspaceUpdates);
+        }
+        unset($validated['currency'], $validated['timezone']);
+
         $settings = WorkspaceSettings::updateOrCreate(
-            ['workspace_id' => $request->user()->current_workspace_id],
+            ['workspace_id' => $workspaceId],
             $validated
         );
 
-        return response()->json(['data' => $settings]);
+        $workspace = \App\Models\Workspace::find($workspaceId);
+        $data = $settings->fresh()->toArray();
+        $data['currency'] = $workspace?->currency;
+        $data['timezone'] = $workspace?->timezone;
+
+        return response()->json(['data' => $data]);
     }
 
     public function uploadLogo(Request $request): JsonResponse

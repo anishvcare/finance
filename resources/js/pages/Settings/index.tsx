@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Building2, FileText, Palette, CreditCard, Bell, Users } from 'lucide-react';
+import CountryStateSelect from '../../components/CountryStateSelect';
+import CurrencySelect from '../../components/CurrencySelect';
 
 const tabs = [
     { id: 'workspace', label: 'Organisation', icon: Building2 },
@@ -83,7 +85,7 @@ export default function Settings() {
 function WorkspaceSettings({ settings, onSave, saving }: { settings: any; onSave: (d: any) => void; saving: boolean }) {
     const [form, setForm] = useState({
         business_name: '', legal_name: '', trading_name: '', owner_name: '',
-        email: '', mobile: '', website: '',
+        email: '', mobile: '', website: '', currency: 'INR',
         address_line_1: '', address_line_2: '', city: '', state: '', postal_code: '', country: '',
         tax_number: '', gst_number: '', vat_number: '',
     });
@@ -98,6 +100,7 @@ function WorkspaceSettings({ settings, onSave, saving }: { settings: any; onSave
                 email: settings.email || '',
                 mobile: settings.mobile || '',
                 website: settings.website || '',
+                currency: settings.currency || 'INR',
                 address_line_1: settings.address_line_1 || '',
                 address_line_2: settings.address_line_2 || '',
                 city: settings.city || '',
@@ -124,15 +127,15 @@ function WorkspaceSettings({ settings, onSave, saving }: { settings: any; onSave
                 <div><label className="label">Email</label><input className="input" type="email" value={form.email} onChange={e => update('email', e.target.value)} /></div>
                 <div><label className="label">Mobile</label><input className="input" value={form.mobile} onChange={e => update('mobile', e.target.value)} /></div>
                 <div><label className="label">Website</label><input className="input" value={form.website} onChange={e => update('website', e.target.value)} /></div>
+                <CurrencySelect value={form.currency} onChange={v => update('currency', v)} label="Default Currency" />
             </div>
             <h3 className="text-md font-semibold text-gray-800 pt-2">Address</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2"><label className="label">Address Line 1</label><input className="input" value={form.address_line_1} onChange={e => update('address_line_1', e.target.value)} /></div>
                 <div className="md:col-span-2"><label className="label">Address Line 2</label><input className="input" value={form.address_line_2} onChange={e => update('address_line_2', e.target.value)} /></div>
+                <CountryStateSelect country={form.country} state={form.state} onCountryChange={v => update('country', v)} onStateChange={v => update('state', v)} />
                 <div><label className="label">City</label><input className="input" value={form.city} onChange={e => update('city', e.target.value)} /></div>
-                <div><label className="label">State</label><input className="input" value={form.state} onChange={e => update('state', e.target.value)} /></div>
                 <div><label className="label">Postal Code</label><input className="input" value={form.postal_code} onChange={e => update('postal_code', e.target.value)} /></div>
-                <div><label className="label">Country</label><input className="input" value={form.country} onChange={e => update('country', e.target.value)} /></div>
             </div>
             <h3 className="text-md font-semibold text-gray-800 pt-2">Tax Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

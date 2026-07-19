@@ -40,7 +40,7 @@ export default function CustomerDetail() {
                 <div className="card space-y-4">
                     <h2 className="font-semibold text-gray-800">Contact Info</h2>
                     {customer.email && <div className="flex items-center space-x-2 text-sm"><Mail className="w-4 h-4 text-gray-400" /><span>{customer.email}</span></div>}
-                    {customer.phone && <div className="flex items-center space-x-2 text-sm"><Phone className="w-4 h-4 text-gray-400" /><span>{customer.phone}</span></div>}
+                    {customer.mobile && <div className="flex items-center space-x-2 text-sm"><Phone className="w-4 h-4 text-gray-400" /><span>{customer.mobile}</span></div>}
                     {customer.billing_address_line_1 && (
                         <div className="flex items-start space-x-2 text-sm">
                             <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />

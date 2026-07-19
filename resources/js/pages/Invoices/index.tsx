@@ -18,7 +18,9 @@ interface Invoice {
 
 interface PaginatedResponse {
     data: Invoice[];
-    meta: { current_page: number; last_page: number; total: number };
+    current_page: number;
+    last_page: number;
+    total: number;
 }
 
 function formatMoney(amount: number, currency = 'USD'): string {
@@ -161,10 +163,10 @@ export default function Invoices() {
                 </div>
 
                 {/* Pagination */}
-                {data && data.meta.last_page > 1 && (
+                {data && data.last_page > 1 && (
                     <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
                         <p className="text-sm text-gray-500">
-                            Showing page {data.meta.current_page} of {data.meta.last_page} ({data.meta.total} total)
+                            Showing page {data.current_page} of {data.last_page} ({data.total} total)
                         </p>
                         <div className="flex space-x-2">
                             <button
@@ -174,7 +176,7 @@ export default function Invoices() {
                             >Previous</button>
                             <button
                                 className="btn-secondary text-xs"
-                                disabled={page >= data.meta.last_page}
+                                disabled={page >= data.last_page}
                                 onClick={() => setPage(p => p + 1)}
                             >Next</button>
                         </div>

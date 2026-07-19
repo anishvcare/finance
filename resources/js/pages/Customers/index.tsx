@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
-import { Plus, Search, Users, X } from 'lucide-react';
+import { Plus, Search, Users, X, Pencil, Trash2 } from 'lucide-react';
 
 export default function Customers() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const [editing, setEditing] = useState<any | null>(null);
     const queryClient = useQueryClient();
 
     const { data, isLoading } = useQuery({
@@ -16,17 +17,33 @@ export default function Customers() {
         queryFn: async () => { const r = await api.get('/customers', { params: { page, search, per_page: 20 } }); return r.data; },
     });
 
-    const createMutation = useMutation({
-        mutationFn: async (formData: any) => { const r = await api.post('/customers', formData); return r.data; },
-        onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['customers'] }); toast.success('Customer created.'); setShowForm(false); },
-        onError: (err: any) => { toast.error(err.response?.data?.message || 'Failed to create customer.'); },
+    const saveMutation = useMutation({
+        mutationFn: async (formData: any) => {
+            if (editing) return (await api.put(`/customers/${editing.id}`, formData)).data;
+            return (await api.post('/customers', formData)).data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['customers'] });
+            toast.success(editing ? 'Customer updated.' : 'Customer created.');
+            setShowForm(false); setEditing(null);
+        },
+        onError: (err: any) => { toast.error(err.response?.data?.message || 'Failed to save customer.'); },
     });
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id: number) => api.delete(`/customers/${id}`),
+        onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['customers'] }); toast.success('Customer deleted.'); },
+        onError: () => toast.error('Failed to delete customer.'),
+    });
+
+    const openCreate = () => { setEditing(null); setShowForm(true); };
+    const openEdit = (c: any) => { setEditing(c); setShowForm(true); };
 
     return (
         <div className="space-y-6">
             <div className="page-header">
                 <h1 className="page-title">Customers</h1>
-                <button onClick={() => setShowForm(true)} className="btn-primary flex items-center space-x-1">
+                <button onClick={openCreate} className="btn-primary flex items-center space-x-1">
                     <Plus className="w-4 h-4" /><span>Add Customer</span>
                 </button>
             </div>
@@ -41,41 +58,77 @@ export default function Customers() {
                     <thead><tr className="bg-gray-50 border-b">
                         <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Name</th>
                         <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Email</th>
-                        <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Phone</th>
+                        <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Mobile</th>
                         <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Type</th>
                         <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">Status</th>
+                        <th className="text-right text-xs font-medium text-gray-500 uppercase px-4 py-3">Actions</th>
                     </tr></thead>
                     <tbody className="divide-y divide-gray-100">
-                        {isLoading ? [...Array(5)].map((_, i) => <tr key={i}><td colSpan={5} className="px-4 py-3"><div className="h-4 bg-gray-100 rounded animate-pulse"></div></td></tr>) :
-                        data?.data?.length === 0 ? <tr><td colSpan={5} className="px-4 py-12 text-center"><Users className="w-12 h-12 mx-auto text-gray-300 mb-3" /><p className="text-gray-500">No customers yet.</p></td></tr> :
+                        {isLoading ? [...Array(5)].map((_, i) => <tr key={i}><td colSpan={6} className="px-4 py-3"><div className="h-4 bg-gray-100 rounded animate-pulse"></div></td></tr>) :
+                        data?.data?.length === 0 ? <tr><td colSpan={6} className="px-4 py-12 text-center"><Users className="w-12 h-12 mx-auto text-gray-300 mb-3" /><p className="text-gray-500">No customers yet.</p></td></tr> :
                         data?.data?.map((c: any) => (
                             <tr key={c.id} className="hover:bg-gray-50">
                                 <td className="px-4 py-3"><Link to={`/customers/${c.id}`} className="font-medium text-blue-600 hover:underline">{c.name}</Link>{c.business_name && <span className="text-xs text-gray-500 ml-2">{c.business_name}</span>}</td>
                                 <td className="px-4 py-3 text-sm text-gray-600">{c.email || '-'}</td>
-                                <td className="px-4 py-3 text-sm text-gray-600">{c.phone || c.mobile || '-'}</td>
+                                <td className="px-4 py-3 text-sm text-gray-600">{c.mobile || '-'}</td>
                                 <td className="px-4 py-3 text-sm text-gray-600 capitalize">{c.type}</td>
                                 <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${c.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>{c.is_active ? 'Active' : 'Archived'}</span></td>
+                                <td className="px-4 py-3">
+                                    <div className="flex items-center justify-end space-x-1">
+                                        <button onClick={() => openEdit(c)} className="p-1.5 text-gray-400 hover:text-blue-600" title="Edit"><Pencil className="w-4 h-4" /></button>
+                                        <button onClick={() => { if (confirm(`Delete "${c.name}"?`)) deleteMutation.mutate(c.id); }} className="p-1.5 text-gray-400 hover:text-red-600" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                                    </div>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+
+                {data && data.last_page > 1 && (
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
+                        <p className="text-sm text-gray-500">Showing page {data.current_page} of {data.last_page} ({data.total} total)</p>
+                        <div className="flex space-x-2">
+                            <button className="btn-secondary text-xs" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Previous</button>
+                            <button className="btn-secondary text-xs" disabled={page >= data.last_page} onClick={() => setPage(p => p + 1)}>Next</button>
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Create Customer Modal */}
-            {showForm && <CustomerFormModal onClose={() => setShowForm(false)} onSubmit={(d) => createMutation.mutate(d)} saving={createMutation.isPending} />}
+            {showForm && <CustomerFormModal initial={editing} onClose={() => { setShowForm(false); setEditing(null); }} onSubmit={(d) => saveMutation.mutate(d)} saving={saveMutation.isPending} />}
         </div>
     );
 }
 
-function CustomerFormModal({ onClose, onSubmit, saving }: { onClose: () => void; onSubmit: (d: any) => void; saving: boolean }) {
-    const [form, setForm] = useState({ type: 'individual', name: '', business_name: '', email: '', phone: '', mobile: '', billing_address_line_1: '', billing_city: '', billing_state: '', billing_postal_code: '', billing_country: '', payment_terms: 30, notes: '' });
+function CustomerFormModal({ initial, onClose, onSubmit, saving }: { initial: any | null; onClose: () => void; onSubmit: (d: any) => void; saving: boolean }) {
+    const [form, setForm] = useState({ type: 'individual', name: '', business_name: '', email: '', mobile: '', billing_address_line_1: '', billing_city: '', billing_state: '', billing_postal_code: '', billing_country: '', payment_terms: 30, notes: '' });
+
+    useEffect(() => {
+        if (initial) {
+            setForm({
+                type: initial.type || 'individual',
+                name: initial.name || '',
+                business_name: initial.business_name || '',
+                email: initial.email || '',
+                mobile: initial.mobile || '',
+                billing_address_line_1: initial.billing_address_line_1 || '',
+                billing_city: initial.billing_city || '',
+                billing_state: initial.billing_state || '',
+                billing_postal_code: initial.billing_postal_code || '',
+                billing_country: initial.billing_country || '',
+                payment_terms: initial.payment_terms ?? 30,
+                notes: initial.notes || '',
+            });
+        }
+    }, [initial]);
+
     const update = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold">New Customer</h2>
+                    <h2 className="text-xl font-bold">{initial ? 'Edit Customer' : 'New Customer'}</h2>
                     <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
                 </div>
                 <div className="space-y-4">
@@ -84,7 +137,6 @@ function CustomerFormModal({ onClose, onSubmit, saving }: { onClose: () => void;
                         <div><label className="label">Name *</label><input className="input" value={form.name} onChange={e => update('name', e.target.value)} required /></div>
                         <div><label className="label">Business Name</label><input className="input" value={form.business_name} onChange={e => update('business_name', e.target.value)} /></div>
                         <div><label className="label">Email</label><input className="input" type="email" value={form.email} onChange={e => update('email', e.target.value)} /></div>
-                        <div><label className="label">Phone</label><input className="input" value={form.phone} onChange={e => update('phone', e.target.value)} /></div>
                         <div><label className="label">Mobile</label><input className="input" value={form.mobile} onChange={e => update('mobile', e.target.value)} /></div>
                     </div>
                     <h3 className="font-medium text-gray-800 pt-2">Billing Address</h3>
@@ -102,7 +154,7 @@ function CustomerFormModal({ onClose, onSubmit, saving }: { onClose: () => void;
                 </div>
                 <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
                     <button onClick={onClose} className="btn-secondary">Cancel</button>
-                    <button onClick={() => onSubmit(form)} disabled={saving || !form.name} className="btn-primary">{saving ? 'Creating...' : 'Create Customer'}</button>
+                    <button onClick={() => onSubmit(form)} disabled={saving || !form.name} className="btn-primary">{saving ? 'Saving...' : (initial ? 'Save Changes' : 'Create Customer')}</button>
                 </div>
             </div>
         </div>

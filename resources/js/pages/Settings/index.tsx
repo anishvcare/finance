@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import api from '../../lib/api';
@@ -13,6 +13,15 @@ const tabs = [
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'team', label: 'Team', icon: Users },
 ];
+
+function extractError(err: any, fallback: string): string {
+    const res = err?.response?.data;
+    if (res?.errors) {
+        const first = Object.values(res.errors)[0];
+        if (Array.isArray(first) && first[0]) return first[0] as string;
+    }
+    return res?.message || fallback;
+}
 
 export default function Settings() {
     const { section } = useParams();
@@ -30,7 +39,7 @@ export default function Settings() {
             return r.data.data;
         },
         onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['settings'] }); toast.success('Settings saved.'); },
-        onError: () => { toast.error('Failed to save settings.'); },
+        onError: (err: any) => { toast.error(extractError(err, 'Failed to save settings.')); },
     });
 
     const handleSave = (data: Record<string, any>) => mutation.mutate(data);
@@ -61,7 +70,7 @@ export default function Settings() {
                 <div className="flex-1">
                     {activeTab === 'workspace' && <WorkspaceSettings settings={settings} onSave={handleSave} saving={mutation.isPending} />}
                     {activeTab === 'invoicing' && <InvoicingSettings settings={settings} onSave={handleSave} saving={mutation.isPending} />}
-                    {activeTab === 'branding' && <BrandingSettings settings={settings} />}
+                    {activeTab === 'branding' && <BrandingSettings settings={settings} onSave={handleSave} saving={mutation.isPending} />}
                     {activeTab === 'payment' && <PaymentSettings settings={settings} onSave={handleSave} saving={mutation.isPending} />}
                     {activeTab === 'notifications' && <div className="card"><p className="text-gray-500">Notification preferences coming soon.</p></div>}
                     {activeTab === 'team' && <div className="card"><p className="text-gray-500">Team management coming soon.</p></div>}
@@ -73,24 +82,34 @@ export default function Settings() {
 
 function WorkspaceSettings({ settings, onSave, saving }: { settings: any; onSave: (d: any) => void; saving: boolean }) {
     const [form, setForm] = useState({
-        business_name: settings?.business_name || '',
-        legal_name: settings?.legal_name || '',
-        trading_name: settings?.trading_name || '',
-        owner_name: settings?.owner_name || '',
-        email: settings?.email || '',
-        phone: settings?.phone || '',
-        mobile: settings?.mobile || '',
-        website: settings?.website || '',
-        address_line_1: settings?.address_line_1 || '',
-        address_line_2: settings?.address_line_2 || '',
-        city: settings?.city || '',
-        state: settings?.state || '',
-        postal_code: settings?.postal_code || '',
-        country: settings?.country || '',
-        tax_number: settings?.tax_number || '',
-        gst_number: settings?.gst_number || '',
-        vat_number: settings?.vat_number || '',
+        business_name: '', legal_name: '', trading_name: '', owner_name: '',
+        email: '', mobile: '', website: '',
+        address_line_1: '', address_line_2: '', city: '', state: '', postal_code: '', country: '',
+        tax_number: '', gst_number: '', vat_number: '',
     });
+
+    useEffect(() => {
+        if (settings) {
+            setForm({
+                business_name: settings.business_name || '',
+                legal_name: settings.legal_name || '',
+                trading_name: settings.trading_name || '',
+                owner_name: settings.owner_name || '',
+                email: settings.email || '',
+                mobile: settings.mobile || '',
+                website: settings.website || '',
+                address_line_1: settings.address_line_1 || '',
+                address_line_2: settings.address_line_2 || '',
+                city: settings.city || '',
+                state: settings.state || '',
+                postal_code: settings.postal_code || '',
+                country: settings.country || '',
+                tax_number: settings.tax_number || '',
+                gst_number: settings.gst_number || '',
+                vat_number: settings.vat_number || '',
+            });
+        }
+    }, [settings]);
 
     const update = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
 
@@ -103,7 +122,6 @@ function WorkspaceSettings({ settings, onSave, saving }: { settings: any; onSave
                 <div><label className="label">Trading Name</label><input className="input" value={form.trading_name} onChange={e => update('trading_name', e.target.value)} /></div>
                 <div><label className="label">Owner Name</label><input className="input" value={form.owner_name} onChange={e => update('owner_name', e.target.value)} /></div>
                 <div><label className="label">Email</label><input className="input" type="email" value={form.email} onChange={e => update('email', e.target.value)} /></div>
-                <div><label className="label">Phone</label><input className="input" value={form.phone} onChange={e => update('phone', e.target.value)} /></div>
                 <div><label className="label">Mobile</label><input className="input" value={form.mobile} onChange={e => update('mobile', e.target.value)} /></div>
                 <div><label className="label">Website</label><input className="input" value={form.website} onChange={e => update('website', e.target.value)} /></div>
             </div>
@@ -131,15 +149,25 @@ function WorkspaceSettings({ settings, onSave, saving }: { settings: any; onSave
 
 function InvoicingSettings({ settings, onSave, saving }: { settings: any; onSave: (d: any) => void; saving: boolean }) {
     const [form, setForm] = useState({
-        invoice_prefix: settings?.invoice_prefix || 'INV-',
-        invoice_number_digits: settings?.invoice_number_digits || 5,
-        invoice_include_year: settings?.invoice_include_year || false,
-        default_payment_terms: settings?.default_payment_terms || 30,
-        invoice_template: settings?.invoice_template || 'clean',
-        default_invoice_notes: settings?.default_invoice_notes || '',
-        default_terms: settings?.default_terms || '',
-        default_invoice_footer: settings?.default_invoice_footer || '',
+        invoice_prefix: 'INV-', invoice_number_digits: 5, invoice_include_year: false,
+        default_payment_terms: 30, invoice_template: 'clean',
+        default_invoice_notes: '', default_terms: '', default_invoice_footer: '',
     });
+
+    useEffect(() => {
+        if (settings) {
+            setForm({
+                invoice_prefix: settings.invoice_prefix || 'INV-',
+                invoice_number_digits: settings.invoice_number_digits || 5,
+                invoice_include_year: settings.invoice_include_year || false,
+                default_payment_terms: settings.default_payment_terms || 30,
+                invoice_template: settings.invoice_template || 'clean',
+                default_invoice_notes: settings.default_invoice_notes || '',
+                default_terms: settings.default_terms || '',
+                default_invoice_footer: settings.default_invoice_footer || '',
+            });
+        }
+    }, [settings]);
 
     const update = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
 
@@ -169,45 +197,76 @@ function InvoicingSettings({ settings, onSave, saving }: { settings: any; onSave
     );
 }
 
-function BrandingSettings({ settings }: { settings: any }) {
-    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+function BrandingSettings({ settings, onSave, saving }: { settings: any; onSave: (d: any) => void; saving: boolean }) {
+    const queryClient = useQueryClient();
+    const [accentColor, setAccentColor] = useState('#2563EB');
+    const [uploading, setUploading] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (settings) setAccentColor(settings.accent_color || '#2563EB');
+    }, [settings]);
+
+    const uploadFile = async (field: 'logo' | 'signature' | 'stamp', file: File) => {
         const formData = new FormData();
-        formData.append('logo', file);
+        formData.append(field, file);
+        setUploading(field);
         try {
-            await api.post('/settings/logo', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-            toast.success('Logo uploaded.');
-        } catch { toast.error('Upload failed.'); }
+            await api.post(`/settings/${field}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            await queryClient.invalidateQueries({ queryKey: ['settings'] });
+            toast.success(`${field.charAt(0).toUpperCase() + field.slice(1)} uploaded.`);
+        } catch (err: any) {
+            toast.error(extractError(err, 'Upload failed.'));
+        } finally {
+            setUploading(null);
+        }
+    };
+
+    const handleFile = (field: 'logo' | 'signature' | 'stamp') => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) uploadFile(field, file);
     };
 
     return (
         <div className="card space-y-6">
             <h2 className="text-lg font-semibold text-gray-900">Branding</h2>
+
             <div>
                 <label className="label">Logo</label>
                 <div className="flex items-center space-x-4">
                     {settings?.logo_path && <img src={`/storage/${settings.logo_path}`} className="h-16 w-auto rounded border" alt="Logo" />}
-                    <input type="file" accept="image/*" onChange={handleLogoUpload} className="text-sm text-gray-600" />
+                    <input type="file" accept="image/*" onChange={handleFile('logo')} disabled={uploading === 'logo'} className="text-sm text-gray-600" />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Max 2MB. Recommended: PNG or SVG, 400x200px</p>
             </div>
+
+            <div>
+                <label className="label">Signature</label>
+                <div className="flex items-center space-x-4">
+                    {settings?.signature_path && <img src={`/storage/${settings.signature_path}`} className="h-14 w-auto rounded border" alt="Signature" />}
+                    <input type="file" accept="image/*" onChange={handleFile('signature')} disabled={uploading === 'signature'} className="text-sm text-gray-600" />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Max 1MB. Shown on invoices and quotes.</p>
+            </div>
+
+            <div>
+                <label className="label">Stamp</label>
+                <div className="flex items-center space-x-4">
+                    {settings?.stamp_path && <img src={`/storage/${settings.stamp_path}`} className="h-16 w-auto rounded border" alt="Stamp" />}
+                    <input type="file" accept="image/*" onChange={handleFile('stamp')} disabled={uploading === 'stamp'} className="text-sm text-gray-600" />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Max 1MB. Company stamp/seal for documents.</p>
+            </div>
+
             <div>
                 <label className="label">Accent Color</label>
                 <div className="flex items-center space-x-3">
-                    <input type="color" value={settings?.accent_color || '#2563EB'} className="h-10 w-10 rounded border cursor-pointer" onChange={() => {}} />
-                    <span className="text-sm text-gray-600">{settings?.accent_color || '#2563EB'}</span>
+                    <input type="color" value={accentColor} className="h-10 w-10 rounded border cursor-pointer" onChange={e => setAccentColor(e.target.value)} />
+                    <input className="input w-32" value={accentColor} onChange={e => setAccentColor(e.target.value)} />
                 </div>
             </div>
-            <div>
-                <label className="label">Signature</label>
-                <input type="file" accept="image/*" className="text-sm text-gray-600" />
-                <p className="text-xs text-gray-500 mt-1">Shown on invoices and quotes</p>
-            </div>
-            <div>
-                <label className="label">Stamp</label>
-                <input type="file" accept="image/*" className="text-sm text-gray-600" />
-                <p className="text-xs text-gray-500 mt-1">Company stamp/seal for documents</p>
+
+            <div className="pt-4 border-t">
+                <button onClick={() => onSave({ accent_color: accentColor })} disabled={saving} className="btn-primary">{saving ? 'Saving...' : 'Save Changes'}</button>
             </div>
         </div>
     );
@@ -215,14 +274,23 @@ function BrandingSettings({ settings }: { settings: any }) {
 
 function PaymentSettings({ settings, onSave, saving }: { settings: any; onSave: (d: any) => void; saving: boolean }) {
     const [form, setForm] = useState({
-        upi_id: settings?.upi_id || '',
-        bank_account_name: settings?.bank_account_name || '',
-        bank_name: settings?.bank_name || '',
-        bank_account_number: settings?.bank_account_number || '',
-        bank_swift: settings?.bank_swift || '',
-        bank_iban: settings?.bank_iban || '',
-        payment_instructions: settings?.payment_instructions || '',
+        upi_id: '', bank_account_name: '', bank_name: '', bank_account_number: '',
+        bank_swift: '', bank_iban: '', payment_instructions: '',
     });
+
+    useEffect(() => {
+        if (settings) {
+            setForm({
+                upi_id: settings.upi_id || '',
+                bank_account_name: settings.bank_account_name || '',
+                bank_name: settings.bank_name || '',
+                bank_account_number: settings.bank_account_number || '',
+                bank_swift: settings.bank_swift || '',
+                bank_iban: settings.bank_iban || '',
+                payment_instructions: settings.payment_instructions || '',
+            });
+        }
+    }, [settings]);
 
     const update = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
 

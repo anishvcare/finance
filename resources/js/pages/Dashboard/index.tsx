@@ -5,8 +5,57 @@ import api from '../../lib/api';
 import { formatMoney } from '../../lib/currencies';
 import {
     TrendingUp, TrendingDown, Clock, AlertTriangle,
-    Plus, Receipt, CreditCard, Camera, CheckSquare, UserPlus
+    Plus, Receipt, CreditCard, Camera, CheckSquare, UserPlus,
+    ArrowDownRight, ArrowUpRight, FileText, Target
 } from 'lucide-react';
+
+const COLORS: Record<string, string> = {
+    green: 'bg-green-50 hover:bg-green-100 text-green-700',
+    red: 'bg-red-50 hover:bg-red-100 text-red-700',
+    blue: 'bg-blue-50 hover:bg-blue-100 text-blue-700',
+    indigo: 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700',
+    amber: 'bg-amber-50 hover:bg-amber-100 text-amber-700',
+    purple: 'bg-purple-50 hover:bg-purple-100 text-purple-700',
+    rose: 'bg-rose-50 hover:bg-rose-100 text-rose-700',
+};
+
+function QuickAction({ to, icon: Icon, label, color }: { to: string; icon: React.ElementType; label: string; color: string }) {
+    return (
+        <Link to={to} className={`flex flex-col items-center justify-center text-center p-3 rounded-lg transition ${COLORS[color]}`}>
+            <Icon className="w-5 h-5 mb-1" />
+            <span className="text-[11px] font-medium leading-tight">{label}</span>
+        </Link>
+    );
+}
+
+function CategoryBreakdown({ title, total, rows, positive }: { title: string; total: number; rows: Array<{ name: string; color: string | null; total: number }>; positive?: boolean }) {
+    const max = Math.max(1, ...rows.map(r => r.total));
+    return (
+        <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+                <span className={`text-lg font-bold ${positive ? 'text-green-600' : 'text-red-600'}`}>{formatMoney(total)}</span>
+            </div>
+            {rows.length === 0 ? (
+                <p className="text-sm text-gray-400">No records this month.</p>
+            ) : (
+                <div className="space-y-3">
+                    {rows.slice(0, 6).map((r, i) => (
+                        <div key={i}>
+                            <div className="flex items-center justify-between text-sm mb-1">
+                                <span className="text-gray-600 truncate">{r.name}</span>
+                                <span className="font-medium text-gray-800">{formatMoney(r.total)}</span>
+                            </div>
+                            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div className={`h-full rounded-full ${positive ? 'bg-green-500' : 'bg-red-500'}`} style={{ width: `${(r.total / max) * 100}%` }} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 interface DashboardData {
     business: {
@@ -31,6 +80,12 @@ interface DashboardData {
         urgent: number;
         follow_up_today: number;
         follow_up_overdue: number;
+    };
+    income_expense?: {
+        income_total: number;
+        expense_total: number;
+        income_by_category: Array<{ name: string; color: string | null; total: number }>;
+        expense_by_category: Array<{ name: string; color: string | null; total: number }>;
     };
     recent_transactions: Array<{
         id: number;
@@ -79,7 +134,7 @@ export default function Dashboard() {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                 <div className="bg-white rounded-xl p-6 border border-gray-100">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Revenue (Month)</span>
@@ -145,30 +200,28 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Quick Actions & Tasks */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Quick Actions */}
-                <div className="bg-white rounded-xl p-6 border border-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-                    <div className="grid grid-cols-2 gap-3">
-                        <Link to="/invoices/create" className="flex flex-col items-center p-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition">
-                            <Receipt className="w-5 h-5 text-blue-600 mb-1" />
-                            <span className="text-xs font-medium text-blue-700">New Invoice</span>
-                        </Link>
-                        <Link to="/transactions" className="flex flex-col items-center p-3 rounded-lg bg-green-50 hover:bg-green-100 transition">
-                            <Plus className="w-5 h-5 text-green-600 mb-1" />
-                            <span className="text-xs font-medium text-green-700">Add Income</span>
-                        </Link>
-                        <Link to="/bills" className="flex flex-col items-center p-3 rounded-lg bg-amber-50 hover:bg-amber-100 transition">
-                            <CreditCard className="w-5 h-5 text-amber-600 mb-1" />
-                            <span className="text-xs font-medium text-amber-700">New Bill</span>
-                        </Link>
-                        <Link to="/tasks" className="flex flex-col items-center p-3 rounded-lg bg-purple-50 hover:bg-purple-100 transition">
-                            <CheckSquare className="w-5 h-5 text-purple-600 mb-1" />
-                            <span className="text-xs font-medium text-purple-700">New Task</span>
-                        </Link>
-                    </div>
+            {/* Income & Expenses by category (this month) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <CategoryBreakdown title="Income (This Month)" total={data?.income_expense?.income_total || 0} rows={data?.income_expense?.income_by_category || []} positive />
+                <CategoryBreakdown title="Expenses (This Month)" total={data?.income_expense?.expense_total || 0} rows={data?.income_expense?.expense_by_category || []} />
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                    <QuickAction to="/transactions?new=income" icon={ArrowDownRight} label="Add Income" color="green" />
+                    <QuickAction to="/transactions?new=expense" icon={ArrowUpRight} label="Add Expense" color="red" />
+                    <QuickAction to="/leads?new=1" icon={UserPlus} label="New Lead" color="blue" />
+                    <QuickAction to="/quotes/create" icon={FileText} label="New Quote" color="indigo" />
+                    <QuickAction to="/bills?new=1" icon={CreditCard} label="New Bill" color="amber" />
+                    <QuickAction to="/tasks?new=1" icon={CheckSquare} label="New Task" color="purple" />
+                    <QuickAction to="/commitments?new=1" icon={Target} label="Commitment" color="rose" />
                 </div>
+            </div>
+
+            {/* Tasks & Recent */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                 {/* Tasks Due */}
                 <div className="bg-white rounded-xl p-6 border border-gray-100">

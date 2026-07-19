@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { formatMoney, getDefaultCurrency } from '../../lib/currencies';
@@ -19,7 +20,12 @@ export default function Bills() {
     const [search, setSearch] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [payingBill, setPayingBill] = useState<any | null>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (searchParams.get('new') === '1') { setShowForm(true); searchParams.delete('new'); setSearchParams(searchParams, { replace: true }); }
+    }, []);
 
     const { data, isLoading } = useQuery({
         queryKey: ['bills', page, search],

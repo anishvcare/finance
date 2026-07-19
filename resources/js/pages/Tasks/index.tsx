@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Plus, CheckCircle, Circle, Clock, AlertTriangle, X } from 'lucide-react';
@@ -9,7 +10,12 @@ const priorityColors = { low: 'text-gray-400', medium: 'text-blue-500', high: 't
 export default function Tasks() {
     const [filter, setFilter] = useState('all');
     const [showForm, setShowForm] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (searchParams.get('new') === '1') { setShowForm(true); searchParams.delete('new'); setSearchParams(searchParams, { replace: true }); }
+    }, []);
 
     const { data, isLoading } = useQuery({
         queryKey: ['tasks', filter],

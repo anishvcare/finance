@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { formatMoney, getDefaultCurrency } from '../../lib/currencies';
@@ -22,7 +23,12 @@ export default function Commitments() {
     const [search, setSearch] = useState('');
     const [status, setStatus] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (searchParams.get('new') === '1') { setShowForm(true); searchParams.delete('new'); setSearchParams(searchParams, { replace: true }); }
+    }, []);
 
     const { data, isLoading } = useQuery({
         queryKey: ['commitments', page, search, status],

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { formatMoney, getDefaultCurrency } from '../../lib/currencies';
@@ -33,7 +34,12 @@ export default function Leads() {
     const [filters, setFilters] = useState(EMPTY_FILTERS);
     const [showForm, setShowForm] = useState(false);
     const [editing, setEditing] = useState<any | null>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (searchParams.get('new') === '1') { setEditing(null); setShowForm(true); searchParams.delete('new'); setSearchParams(searchParams, { replace: true }); }
+    }, []);
 
     const { data: stats } = useQuery({ queryKey: ['lead-stats'], queryFn: async () => (await api.get('/leads/stats')).data });
 

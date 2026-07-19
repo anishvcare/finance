@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './lib/auth';
 import { AppRoutes } from './routes';
+import { InstallPWABanner } from './components/InstallPWA';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -22,6 +23,7 @@ function App() {
             <BrowserRouter basename="/app">
                 <AuthProvider>
                     <AppRoutes />
+                    <InstallPWABanner />
                     <Toaster position="top-right" />
                 </AuthProvider>
             </BrowserRouter>

@@ -79,6 +79,22 @@ class DashboardController extends Controller
             ", [today()->toDateString(), today()->toDateString()])
             ->first();
 
+        // Income & expense by category (this month)
+        $monthStart = today()->startOfMonth()->toDateString();
+        $monthEnd = today()->endOfMonth()->toDateString();
+
+        $categoryBreakdown = fn (string $type) => Transaction::where('transactions.workspace_id', $workspaceId)
+            ->where('type', $type)
+            ->whereBetween('date', [$monthStart, $monthEnd])
+            ->leftJoin('categories', 'transactions.category_id', '=', 'categories.id')
+            ->selectRaw('COALESCE(categories.name, ?) as name, categories.color as color, SUM(transactions.amount) as total', ['Uncategorised'])
+            ->groupBy('categories.id', 'categories.name', 'categories.color')
+            ->orderByDesc('total')
+            ->get();
+
+        $incomeByCategory = $categoryBreakdown('income');
+        $expenseByCategory = $categoryBreakdown('expense');
+
         // Recent transactions
         $recentTransactions = Transaction::where('workspace_id', $workspaceId)
             ->with('category:id,name,color', 'account:id,name')
@@ -109,6 +125,12 @@ class DashboardController extends Controller
                 'urgent' => $leadSummary->urgent ?? 0,
                 'follow_up_today' => $leadSummary->follow_up_today ?? 0,
                 'follow_up_overdue' => $leadSummary->follow_up_overdue ?? 0,
+            ],
+            'income_expense' => [
+                'income_total' => (int) $incomeByCategory->sum('total'),
+                'expense_total' => (int) $expenseByCategory->sum('total'),
+                'income_by_category' => $incomeByCategory,
+                'expense_by_category' => $expenseByCategory,
             ],
             'recent_transactions' => $recentTransactions,
         ]);

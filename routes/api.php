@@ -136,6 +136,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/commitments/{commitment}', [\App\Http\Controllers\Api\CommitmentController::class, 'destroy']);
         Route::post('/commitments/{commitment}/milestones', [\App\Http\Controllers\Api\CommitmentController::class, 'addMilestone']);
 
+        // Categories
+        Route::get('/categories', [\App\Http\Controllers\Api\CategoryController::class, 'index']);
+        Route::post('/categories', [\App\Http\Controllers\Api\CategoryController::class, 'store']);
+        Route::delete('/categories/{category}', [\App\Http\Controllers\Api\CategoryController::class, 'destroy']);
+
         // Accounts
         Route::get('/accounts', [\App\Http\Controllers\Api\AccountController::class, 'index']);
         Route::post('/accounts', [\App\Http\Controllers\Api\AccountController::class, 'store']);

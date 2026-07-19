@@ -344,4 +344,24 @@ class InvoiceController extends Controller
         $invoice->delete();
         return response()->json(null, 204);
     }
+
+    public function pdf(Invoice $invoice)
+    {
+        $invoice->load('items', 'customer');
+        $settings = \App\Models\WorkspaceSettings::where('workspace_id', $invoice->workspace_id)->first();
+
+        $imgPath = fn ($p) => $p ? storage_path('app/public/' . $p) : null;
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.invoice-clean', [
+            'invoice' => $invoice,
+            'customer' => $invoice->customer,
+            'items' => $invoice->items,
+            'settings' => $settings,
+            'logo_url' => $imgPath($settings?->logo_path),
+            'signature_url' => $imgPath($settings?->signature_path),
+            'stamp_url' => $imgPath($settings?->stamp_path),
+        ])->setPaper('a4');
+
+        return $pdf->stream($invoice->invoice_number . '.pdf');
+    }
 }

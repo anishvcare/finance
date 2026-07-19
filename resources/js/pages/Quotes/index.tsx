@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { formatMoney } from '../../lib/currencies';
-import { Plus, Search, FileText, Send, Check, X as XIcon, ArrowRightLeft, Trash2 } from 'lucide-react';
+import { Plus, Search, FileText, Send, Check, X as XIcon, ArrowRightLeft, Trash2, Download } from 'lucide-react';
 
 const STATUS_STYLES: Record<string, string> = {
     draft: 'bg-gray-100 text-gray-600',
@@ -82,6 +82,7 @@ export default function Quotes() {
                                     <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_STYLES[q.status] || 'bg-gray-100 text-gray-600'}`}>{q.status}</span></td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center justify-end space-x-1">
+                                            <a href={`/api/quotes/${q.id}/pdf`} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-400 hover:text-gray-700" title="Download PDF"><Download className="w-4 h-4" /></a>
                                             {q.status === 'draft' && <button onClick={() => action.mutate({ id: q.id, verb: 'send' })} className="p-1.5 text-gray-400 hover:text-blue-600" title="Send"><Send className="w-4 h-4" /></button>}
                                             {q.status === 'sent' && <button onClick={() => action.mutate({ id: q.id, verb: 'accept' })} className="p-1.5 text-gray-400 hover:text-green-600" title="Mark accepted"><Check className="w-4 h-4" /></button>}
                                             {q.status === 'sent' && <button onClick={() => action.mutate({ id: q.id, verb: 'reject' })} className="p-1.5 text-gray-400 hover:text-red-600" title="Mark rejected"><XIcon className="w-4 h-4" /></button>}

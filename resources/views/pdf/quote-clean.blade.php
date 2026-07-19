@@ -6,7 +6,6 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 10pt; color: #333; line-height: 1.5; }
-        .sheet { padding: 0; }
         .band { height: 8px; background: {{ $accent }}; }
         .container { padding: 32px 36px; }
         .header { display: table; width: 100%; margin-bottom: 26px; }
@@ -24,6 +23,7 @@
         .party { display: table-cell; width: 50%; vertical-align: top; }
         .party h3 { font-size: 8pt; font-weight: bold; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
         .party p { font-size: 9pt; color: #333; }
+        .msg { margin-bottom: 18px; font-size: 9pt; color: #444; }
         table.items { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
         table.items thead th { background: {{ $accent }}; color: #fff; padding: 9px 10px; font-size: 8pt; text-transform: uppercase; letter-spacing: .4px; text-align: left; }
         table.items tbody td { border-bottom: 1px solid #eee; padding: 8px 10px; font-size: 9pt; vertical-align: top; }
@@ -33,11 +33,10 @@
         .totals td { padding: 4px 2px; font-size: 9.5pt; }
         .totals td:first-child { color: #666; }
         .totals .total-row td { font-size: 12pt; font-weight: bold; border-top: 2px solid {{ $accent }}; padding-top: 8px; color: #1a1a1a; }
-        .totals .balance-row td { font-size: 11pt; font-weight: bold; color: {{ $accent }}; }
         .section { margin-top: 18px; }
         .section h4 { font-size: 8.5pt; font-weight: bold; color: {{ $accent }}; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
         .section p { font-size: 8.5pt; color: #555; }
-        .paybox { margin-top: 16px; padding: 12px 14px; background: #f7f9fc; border-left: 3px solid {{ $accent }}; }
+        .validity { margin-top: 16px; padding: 10px 14px; background: #f7f9fc; border-left: 3px solid {{ $accent }}; font-size: 8.5pt; color: #555; }
         .signatures { display: table; width: 100%; margin-top: 40px; }
         .sig-block { display: table-cell; width: 50%; vertical-align: bottom; text-align: center; }
         .sig-img { max-width: 130px; max-height: 55px; }
@@ -46,7 +45,6 @@
     </style>
 </head>
 <body>
-<div class="sheet">
     <div class="band"></div>
     <div class="container">
         <div class="header">
@@ -66,13 +64,12 @@
                 </div>
             </div>
             <div class="header-right">
-                <div class="doc-title">INVOICE</div>
+                <div class="doc-title">QUOTATION</div>
                 <div class="meta">
                     <table>
-                        <tr><td>Invoice #</td><td>{{ $invoice->invoice_number }}</td></tr>
-                        <tr><td>Date</td><td>{{ $invoice->invoice_date->format('d M Y') }}</td></tr>
-                        <tr><td>Due Date</td><td>{{ $invoice->due_date->format('d M Y') }}</td></tr>
-                        @if($invoice->reference_number)<tr><td>Reference</td><td>{{ $invoice->reference_number }}</td></tr>@endif
+                        <tr><td>Quote #</td><td>{{ $quote->quote_number }}</td></tr>
+                        <tr><td>Date</td><td>{{ $quote->quote_date->format('d M Y') }}</td></tr>
+                        @if($quote->expiry_date)<tr><td>Valid Until</td><td>{{ $quote->expiry_date->format('d M Y') }}</td></tr>@endif
                     </table>
                 </div>
             </div>
@@ -80,7 +77,7 @@
 
         <div class="parties">
             <div class="party">
-                <h3>Bill To</h3>
+                <h3>Prepared For</h3>
                 <p>
                     <strong>{{ $customer->business_name ?? $customer->name }}</strong><br>
                     @if($customer->contact_person && $customer->business_name){{ $customer->contact_person }}<br>@endif
@@ -89,10 +86,13 @@
                     @if($customer->billing_country)<br>{{ $customer->billing_country }}@endif
                     @if($customer->mobile)<br>Mobile: {{ $customer->mobile }}@endif
                     @if($customer->email)<br>{{ $customer->email }}@endif
-                    @if($customer->tax_number)<br>Tax No: {{ $customer->tax_number }}@endif
                 </p>
             </div>
         </div>
+
+        @if($quote->customer_message)
+        <div class="msg">{!! nl2br(e($quote->customer_message)) !!}</div>
+        @endif
 
         <table class="items">
             <thead>
@@ -126,39 +126,23 @@
 
         <div class="totals">
             <table>
-                <tr><td>Subtotal</td><td class="text-right">{{ number_format($invoice->subtotal / 100, 2) }}</td></tr>
-                @if($invoice->discount_amount > 0)<tr><td>Discount</td><td class="text-right">-{{ number_format($invoice->discount_amount / 100, 2) }}</td></tr>@endif
-                @if($invoice->tax_amount > 0)<tr><td>Tax</td><td class="text-right">{{ number_format($invoice->tax_amount / 100, 2) }}</td></tr>@endif
-                @if($invoice->shipping_amount > 0)<tr><td>Shipping</td><td class="text-right">{{ number_format($invoice->shipping_amount / 100, 2) }}</td></tr>@endif
-                @if($invoice->round_off != 0)<tr><td>Round Off</td><td class="text-right">{{ number_format($invoice->round_off / 100, 2) }}</td></tr>@endif
-                <tr class="total-row"><td>Total</td><td class="text-right">{{ $invoice->currency }} {{ number_format($invoice->total / 100, 2) }}</td></tr>
-                @if($invoice->amount_paid > 0)<tr><td>Amount Paid</td><td class="text-right">-{{ number_format($invoice->amount_paid / 100, 2) }}</td></tr>@endif
-                @if($invoice->balance_due > 0)<tr class="balance-row"><td>Balance Due</td><td class="text-right">{{ $invoice->currency }} {{ number_format($invoice->balance_due / 100, 2) }}</td></tr>@endif
+                <tr><td>Subtotal</td><td class="text-right">{{ number_format($quote->subtotal / 100, 2) }}</td></tr>
+                @if($quote->discount_amount > 0)<tr><td>Discount</td><td class="text-right">-{{ number_format($quote->discount_amount / 100, 2) }}</td></tr>@endif
+                @if($quote->tax_amount > 0)<tr><td>Tax</td><td class="text-right">{{ number_format($quote->tax_amount / 100, 2) }}</td></tr>@endif
+                @if($quote->shipping_amount > 0)<tr><td>Shipping</td><td class="text-right">{{ number_format($quote->shipping_amount / 100, 2) }}</td></tr>@endif
+                <tr class="total-row"><td>Total</td><td class="text-right">{{ $quote->currency }} {{ number_format($quote->total / 100, 2) }}</td></tr>
             </table>
         </div>
 
-        @php
-            $hasBank = $settings->bank_name || $settings->bank_account_name || $settings->upi_id;
-        @endphp
-        @if($hasBank || $settings->payment_instructions)
-        <div class="paybox">
-            <h4 style="color: {{ $accent }}; font-size: 8.5pt; text-transform: uppercase; margin-bottom: 4px;">Payment Details</h4>
-            <p style="font-size: 8.5pt; color: #555;">
-                @if($settings->bank_account_name)Account Name: {{ $settings->bank_account_name }}<br>@endif
-                @if($settings->bank_name)Bank: {{ $settings->bank_name }}@endif
-                @if($settings->bank_swift) &nbsp; SWIFT/IFSC: {{ $settings->bank_swift }}@endif
-                @if($settings->bank_iban)<br>IBAN: {{ $settings->bank_iban }}@endif
-                @if($settings->upi_id)<br>UPI: {{ $settings->upi_id }}@endif
-                @if($settings->payment_instructions)<br>{!! nl2br(e($settings->payment_instructions)) !!}@endif
-            </p>
-        </div>
+        @if($quote->expiry_date)
+        <div class="validity">This quotation is valid until <strong>{{ $quote->expiry_date->format('d M Y') }}</strong>. Prices are subject to change after this date.</div>
         @endif
 
-        @if($invoice->notes)
-        <div class="section"><h4>Notes</h4><p>{!! nl2br(e($invoice->notes)) !!}</p></div>
+        @if($quote->notes)
+        <div class="section"><h4>Notes</h4><p>{!! nl2br(e($quote->notes)) !!}</p></div>
         @endif
-        @if($invoice->terms ?? $settings->default_terms)
-        <div class="section"><h4>Terms &amp; Conditions</h4><p>{!! nl2br(e($invoice->terms ?? $settings->default_terms)) !!}</p></div>
+        @if($quote->terms ?? $settings->default_terms)
+        <div class="section"><h4>Terms &amp; Conditions</h4><p>{!! nl2br(e($quote->terms ?? $settings->default_terms)) !!}</p></div>
         @endif
 
         <div class="signatures">
@@ -166,14 +150,13 @@
             <div class="sig-block">
                 @if($stamp_url && file_exists($stamp_url))<img src="{{ $stamp_url }}" class="sig-img" alt="Stamp" style="margin-bottom:-10px;">@endif
                 @if($signature_url && file_exists($signature_url))<br><img src="{{ $signature_url }}" class="sig-img" alt="Signature">@endif
-                <br><span class="sig-label">Authorised Signatory<br>{{ $settings->business_name ?? '' }}</span>
+                <br><span class="sig-label">For {{ $settings->business_name ?? '' }}</span>
             </div>
         </div>
 
         <div class="doc-footer">
-            {{ $settings->default_invoice_footer ?? 'Thank you for your business.' }}
+            {{ $settings->default_quote_footer ?? 'We look forward to working with you.' }}
         </div>
     </div>
-</div>
 </body>
 </html>

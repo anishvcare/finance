@@ -150,6 +150,9 @@ export default function Invoices() {
                                                 <Link to={`/invoices/${invoice.id}`} className="p-1 text-gray-400 hover:text-blue-600" title="View">
                                                     <Eye className="w-4 h-4" />
                                                 </Link>
+                                                <a href={`/api/invoices/${invoice.id}/pdf`} target="_blank" rel="noopener noreferrer" className="p-1 text-gray-400 hover:text-gray-700" title="Download PDF">
+                                                    <Download className="w-4 h-4" />
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>

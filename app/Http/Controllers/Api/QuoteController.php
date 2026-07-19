@@ -270,4 +270,24 @@ class QuoteController extends Controller
         $quote->delete();
         return response()->json(null, 204);
     }
+
+    public function pdf(Quote $quote)
+    {
+        $quote->load('items', 'customer');
+        $settings = \App\Models\WorkspaceSettings::where('workspace_id', $quote->workspace_id)->first();
+
+        $imgPath = fn ($p) => $p ? storage_path('app/public/' . $p) : null;
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.quote-clean', [
+            'quote' => $quote,
+            'customer' => $quote->customer,
+            'items' => $quote->items,
+            'settings' => $settings,
+            'logo_url' => $imgPath($settings?->logo_path),
+            'signature_url' => $imgPath($settings?->signature_path),
+            'stamp_url' => $imgPath($settings?->stamp_path),
+        ])->setPaper('a4');
+
+        return $pdf->stream($quote->quote_number . '.pdf');
+    }
 }

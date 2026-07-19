@@ -63,6 +63,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Invoices
         Route::get('/invoices', [InvoiceController::class, 'index']);
         Route::post('/invoices', [InvoiceController::class, 'store']);
+        Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'pdf']);
         Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
         Route::put('/invoices/{invoice}', [InvoiceController::class, 'update']);
         Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy']);
@@ -89,6 +90,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Quotes
         Route::get('/quotes', [\App\Http\Controllers\Api\QuoteController::class, 'index']);
         Route::post('/quotes', [\App\Http\Controllers\Api\QuoteController::class, 'store']);
+        Route::get('/quotes/{quote}/pdf', [\App\Http\Controllers\Api\QuoteController::class, 'pdf']);
         Route::get('/quotes/{quote}', [\App\Http\Controllers\Api\QuoteController::class, 'show']);
         Route::put('/quotes/{quote}', [\App\Http\Controllers\Api\QuoteController::class, 'update']);
         Route::delete('/quotes/{quote}', [\App\Http\Controllers\Api\QuoteController::class, 'destroy']);

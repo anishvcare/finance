@@ -203,7 +203,9 @@ class InstallController extends Controller
 
     private function generateEnvContent(array $config): string
     {
-        $key = 'base64:' . base64_encode(random_bytes(32));
+        // Preserve an existing key if one is already set (avoids invalidating
+        // the current session/CSRF token mid-install). Generate one otherwise.
+        $key = config('app.key') ?: 'base64:' . base64_encode(random_bytes(32));
 
         return <<<ENV
 APP_NAME="{$config['app_name']}"
@@ -223,9 +225,9 @@ DB_DATABASE={$config['db_database']}
 DB_USERNAME={$config['db_username']}
 DB_PASSWORD={$config['db_password']}
 
-CACHE_DRIVER=file
+CACHE_STORE=file
 QUEUE_CONNECTION=database
-SESSION_DRIVER=database
+SESSION_DRIVER=file
 SESSION_LIFETIME=120
 
 MAIL_MAILER=smtp

@@ -1,5 +1,9 @@
+# === DEPLOY BRANCH ===
+# This branch intentionally INCLUDES vendor/ and public/build/ so it can be
+# downloaded as a ZIP and uploaded directly to cPanel (no composer/npm needed).
+# The source-only branches (main / feature/*) exclude these.
+
 /node_modules
-/public/build
 /public/hot
 /public/storage
 /storage/*.key
@@ -9,11 +13,9 @@
 /storage/framework/sessions/*
 /storage/framework/views/*
 /storage/logs/*
-/vendor
 .env
 .env.backup
 .env.production
-.phpactor.json
 auth.json
 npm-debug.log
 yarn-error.log
@@ -22,4 +24,3 @@ yarn-error.log
 /.vscode
 .DS_Store
 /storage/installed.lock
-*.pdf.tmp

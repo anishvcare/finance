@@ -99,7 +99,7 @@ export async function addToSyncQueue(
     uuid: string,
     data: Record<string, unknown>
 ): Promise<number> {
-    return db.syncQueue.add({
+    const id = await db.syncQueue.add({
         type,
         entity,
         uuid,
@@ -108,6 +108,7 @@ export async function addToSyncQueue(
         retryCount: 0,
         createdAt: new Date(),
     });
+    return id as number;
 }
 
 /**

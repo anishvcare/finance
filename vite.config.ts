@@ -1,10 +1,15 @@
 import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
     plugins: [
+        laravel({
+            input: ['resources/css/app.css', 'resources/js/app.tsx'],
+            refresh: true,
+        }),
         react(),
         VitePWA({
             registerType: 'prompt',
@@ -60,13 +65,7 @@ export default defineConfig({
         },
     },
     build: {
-        outDir: 'public/build',
-        manifest: true,
         rollupOptions: {
-            input: {
-                app: 'resources/js/app.tsx',
-                css: 'resources/css/app.css',
-            },
             output: {
                 manualChunks: {
                     vendor: ['react', 'react-dom', 'react-router-dom'],

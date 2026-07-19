@@ -56,4 +56,23 @@ export async function downloadFile(path: string, filename: string): Promise<void
     setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
 }
 
+/**
+ * Opens a file (e.g. a PDF) inline in a new browser tab for previewing.
+ * The tab is opened synchronously on click (to avoid popup blockers),
+ * then the fetched blob is loaded into it.
+ */
+export async function viewFile(path: string): Promise<void> {
+    const win = window.open('', '_blank');
+    try {
+        const res = await api.get(path, { responseType: 'blob' });
+        const blobUrl = URL.createObjectURL(res.data as Blob);
+        if (win) win.location.href = blobUrl;
+        else window.open(blobUrl, '_blank');
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } catch (e) {
+        if (win) win.close();
+        throw e;
+    }
+}
+
 export default api;

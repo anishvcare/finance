@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import api, { downloadFile } from '../../lib/api';
+import api, { downloadFile, viewFile } from '../../lib/api';
 import toast from 'react-hot-toast';
 import { formatMoney } from '../../lib/currencies';
-import { Plus, Search, FileText, Send, Check, X as XIcon, ArrowRightLeft, Trash2, Download } from 'lucide-react';
+import { Plus, Search, FileText, Send, Check, X as XIcon, ArrowRightLeft, Trash2, Download, Eye } from 'lucide-react';
 
 const STATUS_STYLES: Record<string, string> = {
     draft: 'bg-gray-100 text-gray-600',
@@ -82,6 +82,7 @@ export default function Quotes() {
                                     <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${STATUS_STYLES[q.status] || 'bg-gray-100 text-gray-600'}`}>{q.status}</span></td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center justify-end space-x-1">
+                                            <button onClick={() => viewFile(`/quotes/${q.id}/pdf`).catch(() => toast.error('Failed to open PDF.'))} className="p-1.5 text-gray-400 hover:text-gray-700" title="View PDF"><Eye className="w-4 h-4" /></button>
                                             <button onClick={() => downloadFile(`/quotes/${q.id}/pdf`, `${q.quote_number}.pdf`).catch(() => toast.error('Failed to download PDF.'))} className="p-1.5 text-gray-400 hover:text-gray-700" title="Download PDF"><Download className="w-4 h-4" /></button>
                                             {q.status === 'draft' && <button onClick={() => action.mutate({ id: q.id, verb: 'send' })} className="p-1.5 text-gray-400 hover:text-blue-600" title="Send"><Send className="w-4 h-4" /></button>}
                                             {q.status === 'sent' && <button onClick={() => action.mutate({ id: q.id, verb: 'accept' })} className="p-1.5 text-gray-400 hover:text-green-600" title="Mark accepted"><Check className="w-4 h-4" /></button>}

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api, { downloadFile } from '../../lib/api';
+import api, { downloadFile, viewFile } from '../../lib/api';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Download, Mail, Share2, CreditCard, Edit, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Download, Mail, Share2, CreditCard, Edit, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { formatMoney } from '../../lib/currencies';
 
 const statusColors: Record<string, string> = {
@@ -67,6 +67,7 @@ export default function InvoiceDetail() {
                             <button onClick={() => setShowPayment(true)} className="btn-primary flex items-center space-x-1 text-sm"><CreditCard className="w-4 h-4" /><span>Record Payment</span></button>
                         </>
                     )}
+                    <button onClick={() => viewFile(`/invoices/${id}/pdf`)} className="btn-secondary flex items-center space-x-1 text-sm"><Eye className="w-4 h-4" /><span>View</span></button>
                     <button onClick={() => downloadFile(`/invoices/${id}/pdf`, `${invoice.invoice_number}.pdf`)} className="btn-secondary flex items-center space-x-1 text-sm"><Download className="w-4 h-4" /><span>PDF</span></button>
                 </div>
             </div>

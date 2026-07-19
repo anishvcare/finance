@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import api, { downloadFile } from '../../lib/api';
+import api, { downloadFile, viewFile } from '../../lib/api';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Plus, Trash2, Download } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Download, Eye } from 'lucide-react';
 import { getDefaultCurrency } from '../../lib/currencies';
 import ItemPicker, { PickedItem } from '../../components/ItemPicker';
 
@@ -68,9 +68,14 @@ export default function QuoteForm() {
                     <h1 className="page-title">{isEdit ? 'Edit Quote' : 'New Quote'}</h1>
                 </div>
                 {isEdit && (
-                    <button onClick={() => downloadFile(`/quotes/${id}/pdf`, `quote-${id}.pdf`).catch(() => toast.error('Failed to download PDF.'))} className="btn-secondary flex items-center space-x-1">
-                        <Download className="w-4 h-4" /><span>Download PDF</span>
-                    </button>
+                    <div className="flex items-center space-x-2">
+                        <button onClick={() => viewFile(`/quotes/${id}/pdf`).catch(() => toast.error('Failed to open PDF.'))} className="btn-secondary flex items-center space-x-1">
+                            <Eye className="w-4 h-4" /><span>View PDF</span>
+                        </button>
+                        <button onClick={() => downloadFile(`/quotes/${id}/pdf`, `quote-${id}.pdf`).catch(() => toast.error('Failed to download PDF.'))} className="btn-secondary flex items-center space-x-1">
+                            <Download className="w-4 h-4" /><span>Download</span>
+                        </button>
+                    </div>
                 )}
             </div>
 

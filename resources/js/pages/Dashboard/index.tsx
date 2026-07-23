@@ -29,10 +29,10 @@ function QuickAction({ to, icon: Icon, label, color }: { to: string; icon: React
     );
 }
 
-function CategoryBreakdown({ title, total, rows, positive }: { title: string; total: number; rows: Array<{ name: string; color: string | null; total: number }>; positive?: boolean }) {
+function CategoryBreakdown({ title, total, rows, positive, to }: { title: string; total: number; rows: Array<{ name: string; color: string | null; total: number }>; positive?: boolean; to?: string }) {
     const max = Math.max(1, ...rows.map(r => r.total));
     return (
-        <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
+        <Link to={to || '/transactions'} className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100 block hover:shadow-sm hover:border-gray-200 transition">
             <div className="flex items-start justify-between mb-1">
                 <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
                 <span className={`text-lg font-bold ${positive ? 'text-green-600' : 'text-red-600'}`}>{formatMoney(total)}</span>
@@ -55,7 +55,7 @@ function CategoryBreakdown({ title, total, rows, positive }: { title: string; to
                     ))}
                 </div>
             )}
-        </div>
+        </Link>
     );
 }
 
@@ -138,45 +138,45 @@ export default function Dashboard() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
+                <Link to="/payments" className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100 block hover:shadow-sm hover:border-gray-200 transition">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Received (Month)</span>
                         <TrendingUp className="w-5 h-5 text-green-500" />
                     </div>
                     <p className="mt-2 text-xl lg:text-2xl font-bold text-gray-900">{formatMoney(biz?.payments_received_month || 0)}</p>
                     <p className="mt-1 text-[11px] text-gray-400">Payments received on invoices</p>
-                </div>
+                </Link>
 
-                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
+                <Link to="/payments" className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100 block hover:shadow-sm hover:border-gray-200 transition">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Paid Out (Month)</span>
                         <TrendingDown className="w-5 h-5 text-red-500" />
                     </div>
                     <p className="mt-2 text-xl lg:text-2xl font-bold text-gray-900">{formatMoney(biz?.payments_made_month || 0)}</p>
                     <p className="mt-1 text-[11px] text-gray-400">Payments made on bills</p>
-                </div>
+                </Link>
 
-                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
+                <Link to="/invoices" className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100 block hover:shadow-sm hover:border-gray-200 transition">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Outstanding Invoices</span>
                         <Clock className="w-5 h-5 text-amber-500" />
                     </div>
-                    <p className="mt-2 text-2xl font-bold text-gray-900">{formatMoney(biz?.outstanding_invoices || 0)}</p>
+                    <p className="mt-2 text-xl lg:text-2xl font-bold text-gray-900">{formatMoney(biz?.outstanding_invoices || 0)}</p>
                     {(biz?.overdue_invoice_count || 0) > 0 && (
                         <p className="mt-1 text-sm text-red-600">{biz?.overdue_invoice_count} overdue</p>
                     )}
-                </div>
+                </Link>
 
-                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
+                <Link to="/bills" className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100 block hover:shadow-sm hover:border-gray-200 transition">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Outstanding Bills</span>
                         <AlertTriangle className="w-5 h-5 text-orange-500" />
                     </div>
-                    <p className="mt-2 text-2xl font-bold text-gray-900">{formatMoney(biz?.outstanding_bills || 0)}</p>
+                    <p className="mt-2 text-xl lg:text-2xl font-bold text-gray-900">{formatMoney(biz?.outstanding_bills || 0)}</p>
                     {(biz?.overdue_bill_count || 0) > 0 && (
                         <p className="mt-1 text-sm text-red-600">{biz?.overdue_bill_count} overdue</p>
                     )}
-                </div>
+                </Link>
             </div>
 
             {/* Leads */}
@@ -207,8 +207,8 @@ export default function Dashboard() {
 
             {/* Income & Expenses by category (this month) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <CategoryBreakdown title="Income (This Month)" total={data?.income_expense?.income_total || 0} rows={data?.income_expense?.income_by_category || []} positive />
-                <CategoryBreakdown title="Expenses (This Month)" total={data?.income_expense?.expense_total || 0} rows={data?.income_expense?.expense_by_category || []} />
+                <CategoryBreakdown to="/transactions?type=income" title="Income (This Month)" total={data?.income_expense?.income_total || 0} rows={data?.income_expense?.income_by_category || []} positive />
+                <CategoryBreakdown to="/transactions?type=expense" title="Expenses (This Month)" total={data?.income_expense?.expense_total || 0} rows={data?.income_expense?.expense_by_category || []} />
             </div>
 
             {/* Quick Actions */}
@@ -229,7 +229,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                 {/* Tasks Due */}
-                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
+                <Link to="/tasks" className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100 block hover:shadow-sm hover:border-gray-200 transition">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Tasks & Commitments</h2>
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -247,10 +247,10 @@ export default function Dashboard() {
                             <span className="text-sm font-bold text-gray-900">{tasks?.commitments_due_soon || 0}</span>
                         </div>
                     </div>
-                </div>
+                </Link>
 
                 {/* Recent Transactions */}
-                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
+                <Link to="/transactions" className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100 block hover:shadow-sm hover:border-gray-200 transition">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</h2>
                     <div className="space-y-3">
                         {data?.recent_transactions?.slice(0, 5).map((txn) => (
@@ -265,7 +265,7 @@ export default function Dashboard() {
                             </div>
                         )) || <p className="text-sm text-gray-500">No recent transactions</p>}
                     </div>
-                </div>
+                </Link>
             </div>
         </div>
     );

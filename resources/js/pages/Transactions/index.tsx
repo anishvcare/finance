@@ -16,11 +16,12 @@ export default function Transactions() {
     // Auto-open the add modal when arriving from a Quick Action (?new=income|expense)
     useEffect(() => {
         const n = searchParams.get('new');
+        const t = searchParams.get('type');
+        if (t === 'income' || t === 'expense' || t === 'transfer') setTypeFilter(t);
         if (n === 'income' || n === 'expense') {
             setShowForm(n);
-            searchParams.delete('new');
-            setSearchParams(searchParams, { replace: true });
         }
+        if (n || t) { searchParams.delete('new'); searchParams.delete('type'); setSearchParams(searchParams, { replace: true }); }
     }, []);
 
     const { data, isLoading } = useQuery({

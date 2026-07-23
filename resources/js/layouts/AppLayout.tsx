@@ -8,7 +8,7 @@ import {
     Receipt, CreditCard, ArrowLeftRight, CheckSquare, Target,
     Contact, Calendar, BarChart3, Settings, Menu, X, LogOut,
     ChevronDown, ChevronRight, Bell, Plus, UserPlus, ShoppingBag, Download,
-    ArrowDownRight, ArrowUpRight
+    ArrowDownRight, ArrowUpRight, Home
 } from 'lucide-react';
 
 interface NavItem { label: string; path: string; icon: React.ElementType; }
@@ -170,6 +170,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
             <div className="flex-1 flex flex-col min-w-0">
                 <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6">
                     <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 text-gray-400 hover:text-gray-600"><Menu className="w-5 h-5" /></button>
+                    <Link to="/dashboard" title="Dashboard" className={`flex items-center space-x-1 p-2 rounded-lg text-sm font-medium ${isActive('/dashboard') ? 'text-blue-700 bg-blue-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
+                        <Home className="w-5 h-5" />
+                        <span className="hidden sm:inline">Home</span>
+                    </Link>
                     <div className="flex-1" />
                     <div className="flex items-center space-x-0.5 sm:space-x-1">
                         <Link to="/transactions?new=income" title="Add Income" className="p-2 rounded-lg text-green-600 hover:bg-green-50"><ArrowDownRight className="w-5 h-5" /></Link>

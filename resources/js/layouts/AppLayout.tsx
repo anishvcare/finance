@@ -44,6 +44,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     const [showInstall, setShowInstall] = useState(!isInstalled());
     const { user, workspace, logout } = useAuth();
     const location = useLocation();
+    const isBusiness = (workspace?.type ?? 'business') !== 'personal';
 
     const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
 
@@ -176,16 +177,32 @@ export function AppLayout({ children }: { children: ReactNode }) {
                     </Link>
                     <div className="flex-1" />
                     <div className="flex items-center space-x-0.5 sm:space-x-1">
-                        <Link to="/transactions?new=income" title="Add Income" className="p-2 rounded-lg text-green-600 hover:bg-green-50"><ArrowDownRight className="w-5 h-5" /></Link>
-                        <Link to="/transactions?new=expense" title="Add Expense" className="p-2 rounded-lg text-red-600 hover:bg-red-50"><ArrowUpRight className="w-5 h-5" /></Link>
-                        <Link to="/leads?new=1" title="New Lead" className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"><UserPlus className="w-5 h-5" /></Link>
-                        <Link to="/quotes/create" title="New Quote" className="hidden sm:inline-flex p-2 rounded-lg text-indigo-600 hover:bg-indigo-50"><FileText className="w-5 h-5" /></Link>
-                        <Link to="/bills?new=1" title="New Bill" className="hidden sm:inline-flex p-2 rounded-lg text-amber-600 hover:bg-amber-50"><CreditCard className="w-5 h-5" /></Link>
+                        {isBusiness ? (
+                            <>
+                                <Link to="/invoices/create" title="New Invoice" className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"><Receipt className="w-5 h-5" /></Link>
+                                <Link to="/quotes/create" title="New Quote" className="p-2 rounded-lg text-indigo-600 hover:bg-indigo-50"><FileText className="w-5 h-5" /></Link>
+                                <Link to="/leads?new=1" title="New Lead" className="p-2 rounded-lg text-rose-600 hover:bg-rose-50"><UserPlus className="w-5 h-5" /></Link>
+                                <Link to="/bills?new=1" title="New Bill" className="hidden sm:inline-flex p-2 rounded-lg text-amber-600 hover:bg-amber-50"><CreditCard className="w-5 h-5" /></Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/transactions?new=income" title="Add Income" className="p-2 rounded-lg text-green-600 hover:bg-green-50"><ArrowDownRight className="w-5 h-5" /></Link>
+                                <Link to="/transactions?new=expense" title="Add Expense" className="p-2 rounded-lg text-red-600 hover:bg-red-50"><ArrowUpRight className="w-5 h-5" /></Link>
+                                <Link to="/tasks?new=1" title="New Task" className="p-2 rounded-lg text-purple-600 hover:bg-purple-50"><CheckSquare className="w-5 h-5" /></Link>
+                                <Link to="/commitments?new=1" title="New Commitment" className="hidden sm:inline-flex p-2 rounded-lg text-rose-600 hover:bg-rose-50"><Target className="w-5 h-5" /></Link>
+                            </>
+                        )}
                         <span className="w-px h-6 bg-gray-200 mx-1" />
                         <button title="Notifications" className="p-2 text-gray-400 hover:text-gray-600 relative"><Bell className="w-5 h-5" /></button>
-                        <Link to="/invoices/create" title="New Invoice" className="hidden md:flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 ml-1">
-                            <Plus className="w-4 h-4" /><span>New Invoice</span>
-                        </Link>
+                        {isBusiness ? (
+                            <Link to="/invoices/create" title="New Invoice" className="hidden md:flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 ml-1">
+                                <Plus className="w-4 h-4" /><span>New Invoice</span>
+                            </Link>
+                        ) : (
+                            <Link to="/transactions?new=expense" title="Add Expense" className="hidden md:flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 ml-1">
+                                <Plus className="w-4 h-4" /><span>Add Entry</span>
+                            </Link>
+                        )}
                     </div>
                 </header>
 

@@ -40,7 +40,7 @@ const nav: NavEntry[] = [
 
 export function AppLayout({ children }: { children: ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [installable, setInstallable] = useState(false);
+    const [showInstall, setShowInstall] = useState(!isInstalled());
     const { user, workspace, logout } = useAuth();
     const location = useLocation();
 
@@ -51,20 +51,21 @@ export function AppLayout({ children }: { children: ReactNode }) {
     useEffect(() => { if (salesActive) setSalesOpen(true); }, [salesActive]);
 
     useEffect(() => {
-        if (isInstalled()) return;
-        const check = () => setInstallable(canInstall() || isIOS());
-        check();
-        window.addEventListener('pwa-install-available', check);
-        return () => window.removeEventListener('pwa-install-available', check);
+        const onInstalled = () => setShowInstall(false);
+        window.addEventListener('pwa-installed', onInstalled);
+        return () => window.removeEventListener('pwa-installed', onInstalled);
     }, []);
 
     const handleInstall = async () => {
         if (isIOS()) {
-            toast('On iPhone: tap the Share button, then "Add to Home Screen".', { duration: 6000, icon: '📲' });
+            toast('On iPhone: tap the Share icon, then "Add to Home Screen".', { duration: 7000, icon: '📲' });
             return;
         }
-        const ok = await promptInstall();
-        if (!ok) toast('If no prompt appeared, use your browser menu → "Install app" / "Add to Home screen".', { duration: 6000 });
+        if (canInstall()) {
+            const ok = await promptInstall();
+            if (ok) { setShowInstall(false); return; }
+        }
+        toast('No install prompt available. Use your browser menu → "Install app" / "Add to Home screen".', { duration: 7000, icon: '📲' });
     };
 
     const navLinkClass = (active: boolean) =>
@@ -139,8 +140,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
                         })}
                     </nav>
 
-                    {/* Install app (mobile / supported browsers) */}
-                    {installable && (
+                    {/* Install app */}
+                    {showInstall && (
                         <div className="px-3 pb-2">
                             <button onClick={handleInstall} className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
                                 <Download className="w-4 h-4" /><span>Install App</span>

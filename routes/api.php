@@ -30,6 +30,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Auth
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'user']);
+    Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
 
     // Workspaces
     Route::get('/workspaces', [WorkspaceController::class, 'index']);

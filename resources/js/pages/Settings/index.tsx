@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
-import { Building2, FileText, Palette, CreditCard, Bell, Users } from 'lucide-react';
+import { Building2, FileText, Palette, CreditCard, Bell, Users, Lock } from 'lucide-react';
 import CountryStateSelect from '../../components/CountryStateSelect';
 import CurrencySelect from '../../components/CurrencySelect';
 import { setDefaultCurrency } from '../../lib/currencies';
@@ -13,6 +13,7 @@ const tabs = [
     { id: 'invoicing', label: 'Invoicing', icon: FileText },
     { id: 'branding', label: 'Branding', icon: Palette },
     { id: 'payment', label: 'Payment Info', icon: CreditCard },
+    { id: 'account', label: 'Account', icon: Lock },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'team', label: 'Team', icon: Users },
 ];
@@ -75,6 +76,7 @@ export default function Settings() {
                     {activeTab === 'invoicing' && <InvoicingSettings settings={settings} onSave={handleSave} saving={mutation.isPending} />}
                     {activeTab === 'branding' && <BrandingSettings settings={settings} onSave={handleSave} saving={mutation.isPending} />}
                     {activeTab === 'payment' && <PaymentSettings settings={settings} onSave={handleSave} saving={mutation.isPending} />}
+                    {activeTab === 'account' && <AccountSettings />}
                     {activeTab === 'notifications' && <div className="card"><p className="text-gray-500">Notification preferences coming soon.</p></div>}
                     {activeTab === 'team' && <div className="card"><p className="text-gray-500">Team management coming soon.</p></div>}
                 </div>
@@ -312,6 +314,38 @@ function PaymentSettings({ settings, onSave, saving }: { settings: any; onSave: 
             </div>
             <div><label className="label">Payment Instructions</label><textarea className="input" rows={4} value={form.payment_instructions} onChange={e => update('payment_instructions', e.target.value)} placeholder="Bank transfer instructions, payment methods accepted..." /></div>
             <div className="pt-4"><button onClick={() => onSave(form)} disabled={saving} className="btn-primary">{saving ? 'Saving...' : 'Save Changes'}</button></div>
+        </div>
+    );
+}
+
+
+function AccountSettings() {
+    const [form, setForm] = useState({ current_password: '', password: '', password_confirmation: '' });
+    const update = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+
+    const mutation = useMutation({
+        mutationFn: async () => (await api.post('/auth/change-password', form)).data,
+        onSuccess: (data: any) => { toast.success(data?.message || 'Password updated.'); setForm({ current_password: '', password: '', password_confirmation: '' }); },
+        onError: (err: any) => { toast.error(extractError(err, 'Failed to change password.')); },
+    });
+
+    const canSubmit = form.current_password && form.password.length >= 8 && form.password === form.password_confirmation;
+
+    return (
+        <div className="card space-y-6 max-w-lg">
+            <h2 className="text-lg font-semibold text-gray-900">Change Password</h2>
+            <div className="space-y-4">
+                <div><label className="label">Current Password</label><input type="password" className="input" value={form.current_password} onChange={e => update('current_password', e.target.value)} autoComplete="current-password" /></div>
+                <div><label className="label">New Password</label><input type="password" className="input" value={form.password} onChange={e => update('password', e.target.value)} autoComplete="new-password" />
+                    <p className="text-xs text-gray-500 mt-1">At least 8 characters.</p>
+                </div>
+                <div><label className="label">Confirm New Password</label><input type="password" className="input" value={form.password_confirmation} onChange={e => update('password_confirmation', e.target.value)} autoComplete="new-password" />
+                    {form.password_confirmation && form.password !== form.password_confirmation && <p className="text-xs text-red-500 mt-1">Passwords do not match.</p>}
+                </div>
+            </div>
+            <div className="pt-2">
+                <button onClick={() => mutation.mutate()} disabled={!canSubmit || mutation.isPending} className="btn-primary">{mutation.isPending ? 'Updating…' : 'Update Password'}</button>
+            </div>
         </div>
     );
 }

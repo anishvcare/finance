@@ -11,7 +11,7 @@ import { getDefaultCurrency } from '../lib/currencies';
  * Switches the current workspace (creating the Personal/Business one on first use).
  */
 export default function WorkspaceToggle() {
-    const { user, workspace, switchWorkspace, refreshUser } = useAuth();
+    const { user, workspace } = useAuth();
     const queryClient = useQueryClient();
     const [busy, setBusy] = useState(false);
 
@@ -24,21 +24,21 @@ export default function WorkspaceToggle() {
         try {
             const existing = workspaces.find(w => w.type === type);
             if (existing) {
-                await switchWorkspace(existing.id);
+                await api.post(`/workspaces/${existing.id}/switch`);
             } else {
+                // Creating a workspace also sets it as the current one server-side.
                 await api.post('/workspaces', {
                     name: type === 'business' ? 'My Business' : 'Personal',
                     type,
                     currency: workspace?.currency || getDefaultCurrency(),
                     timezone: workspace?.timezone || 'Asia/Kolkata',
                 });
-                await refreshUser();
             }
-            queryClient.clear(); // drop cached data from the previous workspace
-            toast.success(`Switched to ${type === 'business' ? 'Business' : 'Personal'}`);
+            queryClient.clear();
+            // Full reload guarantees every page shows the selected workspace's data.
+            window.location.reload();
         } catch (e: any) {
             toast.error('Failed to switch workspace.');
-        } finally {
             setBusy(false);
         }
     };

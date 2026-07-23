@@ -7,7 +7,8 @@ import {
     LayoutDashboard, Package, Briefcase, Users, Truck, FileText,
     Receipt, CreditCard, ArrowLeftRight, CheckSquare, Target,
     Contact, Calendar, BarChart3, Settings, Menu, X, LogOut,
-    ChevronDown, ChevronRight, Bell, Plus, UserPlus, ShoppingBag, Download
+    ChevronDown, ChevronRight, Bell, Plus, UserPlus, ShoppingBag, Download,
+    ArrowDownRight, ArrowUpRight
 } from 'lucide-react';
 
 interface NavItem { label: string; path: string; icon: React.ElementType; }
@@ -170,9 +171,15 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6">
                     <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 text-gray-400 hover:text-gray-600"><Menu className="w-5 h-5" /></button>
                     <div className="flex-1" />
-                    <div className="flex items-center space-x-3">
-                        <button className="p-2 text-gray-400 hover:text-gray-600 relative"><Bell className="w-5 h-5" /></button>
-                        <Link to="/invoices/create" className="hidden sm:flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700">
+                    <div className="flex items-center space-x-0.5 sm:space-x-1">
+                        <Link to="/transactions?new=income" title="Add Income" className="p-2 rounded-lg text-green-600 hover:bg-green-50"><ArrowDownRight className="w-5 h-5" /></Link>
+                        <Link to="/transactions?new=expense" title="Add Expense" className="p-2 rounded-lg text-red-600 hover:bg-red-50"><ArrowUpRight className="w-5 h-5" /></Link>
+                        <Link to="/leads?new=1" title="New Lead" className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"><UserPlus className="w-5 h-5" /></Link>
+                        <Link to="/quotes/create" title="New Quote" className="hidden sm:inline-flex p-2 rounded-lg text-indigo-600 hover:bg-indigo-50"><FileText className="w-5 h-5" /></Link>
+                        <Link to="/bills?new=1" title="New Bill" className="hidden sm:inline-flex p-2 rounded-lg text-amber-600 hover:bg-amber-50"><CreditCard className="w-5 h-5" /></Link>
+                        <span className="w-px h-6 bg-gray-200 mx-1" />
+                        <button title="Notifications" className="p-2 text-gray-400 hover:text-gray-600 relative"><Bell className="w-5 h-5" /></button>
+                        <Link to="/invoices/create" title="New Invoice" className="hidden md:flex items-center space-x-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 ml-1">
                             <Plus className="w-4 h-4" /><span>New Invoice</span>
                         </Link>
                     </div>

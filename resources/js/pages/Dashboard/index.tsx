@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
 import { formatMoney } from '../../lib/currencies';
+import WorkspaceToggle from '../../components/WorkspaceToggle';
 import {
     TrendingUp, TrendingDown, Clock, AlertTriangle,
     Plus, Receipt, CreditCard, Camera, CheckSquare, UserPlus,
@@ -129,13 +130,14 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+                <WorkspaceToggle />
             </div>
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-                <div className="bg-white rounded-xl p-6 border border-gray-100">
+                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Revenue (Month)</span>
                         <TrendingUp className="w-5 h-5 text-green-500" />
@@ -143,7 +145,7 @@ export default function Dashboard() {
                     <p className="mt-2 text-2xl font-bold text-gray-900">{formatMoney(biz?.payments_received_month || 0)}</p>
                 </div>
 
-                <div className="bg-white rounded-xl p-6 border border-gray-100">
+                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Expenses (Month)</span>
                         <TrendingDown className="w-5 h-5 text-red-500" />
@@ -151,7 +153,7 @@ export default function Dashboard() {
                     <p className="mt-2 text-2xl font-bold text-gray-900">{formatMoney(biz?.payments_made_month || 0)}</p>
                 </div>
 
-                <div className="bg-white rounded-xl p-6 border border-gray-100">
+                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Outstanding Invoices</span>
                         <Clock className="w-5 h-5 text-amber-500" />
@@ -162,7 +164,7 @@ export default function Dashboard() {
                     )}
                 </div>
 
-                <div className="bg-white rounded-xl p-6 border border-gray-100">
+                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-gray-500">Outstanding Bills</span>
                         <AlertTriangle className="w-5 h-5 text-orange-500" />
@@ -175,7 +177,7 @@ export default function Dashboard() {
             </div>
 
             {/* Leads */}
-            <div className="bg-white rounded-xl p-6 border border-gray-100">
+            <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900 flex items-center"><UserPlus className="w-5 h-5 text-blue-600 mr-2" />Leads</h2>
                     <Link to="/leads" className="text-sm text-blue-600 hover:underline">View all</Link>
@@ -224,7 +226,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                 {/* Tasks Due */}
-                <div className="bg-white rounded-xl p-6 border border-gray-100">
+                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Tasks & Commitments</h2>
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -245,7 +247,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Recent Transactions */}
-                <div className="bg-white rounded-xl p-6 border border-gray-100">
+                <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</h2>
                     <div className="space-y-3">
                         {data?.recent_transactions?.slice(0, 5).map((txn) => (

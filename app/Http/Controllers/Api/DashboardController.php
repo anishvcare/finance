@@ -84,8 +84,8 @@ class DashboardController extends Controller
         $monthEnd = today()->endOfMonth()->toDateString();
 
         $categoryBreakdown = fn (string $type) => Transaction::where('transactions.workspace_id', $workspaceId)
-            ->where('type', $type)
-            ->whereBetween('date', [$monthStart, $monthEnd])
+            ->where('transactions.type', $type)
+            ->whereBetween('transactions.date', [$monthStart, $monthEnd])
             ->leftJoin('categories', 'transactions.category_id', '=', 'categories.id')
             ->selectRaw('COALESCE(categories.name, ?) as name, categories.color as color, SUM(transactions.amount) as total', ['Uncategorised'])
             ->groupBy('categories.id', 'categories.name', 'categories.color')

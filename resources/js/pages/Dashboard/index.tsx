@@ -33,10 +33,11 @@ function CategoryBreakdown({ title, total, rows, positive }: { title: string; to
     const max = Math.max(1, ...rows.map(r => r.total));
     return (
         <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-start justify-between mb-1">
                 <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
                 <span className={`text-lg font-bold ${positive ? 'text-green-600' : 'text-red-600'}`}>{formatMoney(total)}</span>
             </div>
+            <p className="text-[11px] text-gray-400 mb-4">From your recorded transactions (cashbook)</p>
             {rows.length === 0 ? (
                 <p className="text-sm text-gray-400">No records this month.</p>
             ) : (
@@ -139,18 +140,20 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                 <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-500">Revenue (Month)</span>
+                        <span className="text-sm font-medium text-gray-500">Received (Month)</span>
                         <TrendingUp className="w-5 h-5 text-green-500" />
                     </div>
-                    <p className="mt-2 text-2xl font-bold text-gray-900">{formatMoney(biz?.payments_received_month || 0)}</p>
+                    <p className="mt-2 text-xl lg:text-2xl font-bold text-gray-900">{formatMoney(biz?.payments_received_month || 0)}</p>
+                    <p className="mt-1 text-[11px] text-gray-400">Payments received on invoices</p>
                 </div>
 
                 <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-500">Expenses (Month)</span>
+                        <span className="text-sm font-medium text-gray-500">Paid Out (Month)</span>
                         <TrendingDown className="w-5 h-5 text-red-500" />
                     </div>
-                    <p className="mt-2 text-2xl font-bold text-gray-900">{formatMoney(biz?.payments_made_month || 0)}</p>
+                    <p className="mt-2 text-xl lg:text-2xl font-bold text-gray-900">{formatMoney(biz?.payments_made_month || 0)}</p>
+                    <p className="mt-1 text-[11px] text-gray-400">Payments made on bills</p>
                 </div>
 
                 <div className="bg-white rounded-xl p-4 lg:p-6 border border-gray-100">

@@ -149,6 +149,7 @@
                 @if($settings->bank_name)Bank: {{ $settings->bank_name }}@endif
                 @if($settings->bank_swift) &nbsp; SWIFT/IFSC: {{ $settings->bank_swift }}@endif
                 @if($settings->bank_iban)<br>IBAN: {{ $settings->bank_iban }}@endif
+                @if($settings->bank_branch)<br>Branch : {{ $settings->bank_branch }}@endif
                 @if($settings->upi_id)<br>UPI: {{ $settings->upi_id }}@endif
                 @if($settings->payment_instructions)<br>{!! nl2br(e($settings->payment_instructions)) !!}@endif
             </p>

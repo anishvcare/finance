@@ -280,7 +280,7 @@ function BrandingSettings({ settings, onSave, saving }: { settings: any; onSave:
 
 function PaymentSettings({ settings, onSave, saving }: { settings: any; onSave: (d: any) => void; saving: boolean }) {
     const [form, setForm] = useState({
-        upi_id: '', bank_account_name: '', bank_name: '', bank_account_number: '',
+        upi_id: '', bank_account_name: '', bank_name: '', bank_branch: '', bank_account_number: '',
         bank_swift: '', bank_iban: '', payment_instructions: '',
     });
 
@@ -290,6 +290,7 @@ function PaymentSettings({ settings, onSave, saving }: { settings: any; onSave: 
                 upi_id: settings.upi_id || '',
                 bank_account_name: settings.bank_account_name || '',
                 bank_name: settings.bank_name || '',
+                bank_branch: settings.bank_branch || '',
                 bank_account_number: settings.bank_account_number || '',
                 bank_swift: settings.bank_swift || '',
                 bank_iban: settings.bank_iban || '',
@@ -308,6 +309,7 @@ function PaymentSettings({ settings, onSave, saving }: { settings: any; onSave: 
                 <div><label className="label">UPI ID</label><input className="input" value={form.upi_id} onChange={e => update('upi_id', e.target.value)} placeholder="yourname@upi" /></div>
                 <div><label className="label">Bank Account Name</label><input className="input" value={form.bank_account_name} onChange={e => update('bank_account_name', e.target.value)} /></div>
                 <div><label className="label">Bank Name</label><input className="input" value={form.bank_name} onChange={e => update('bank_name', e.target.value)} /></div>
+                <div><label className="label">Branch</label><input className="input" value={form.bank_branch} onChange={e => update('bank_branch', e.target.value)} placeholder="e.g. Kochi" /></div>
                 <div><label className="label">Account Number</label><input className="input" value={form.bank_account_number} onChange={e => update('bank_account_number', e.target.value)} /></div>
                 <div><label className="label">SWIFT/BIC</label><input className="input" value={form.bank_swift} onChange={e => update('bank_swift', e.target.value)} /></div>
                 <div><label className="label">IBAN</label><input className="input" value={form.bank_iban} onChange={e => update('bank_iban', e.target.value)} /></div>

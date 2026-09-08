@@ -46,6 +46,7 @@ class SettingsController extends Controller
             'upi_id' => 'nullable|string|max:100',
             'bank_account_name' => 'nullable|string|max:255',
             'bank_name' => 'nullable|string|max:255',
+            'bank_branch' => 'nullable|string|max:255',
             'bank_account_number' => 'nullable|string|max:50',
             'bank_swift' => 'nullable|string|max:20',
             'bank_iban' => 'nullable|string|max:50',

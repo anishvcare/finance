@@ -31,6 +31,7 @@ class WorkspaceSettings extends Model
         'upi_id',
         'bank_account_name',
         'bank_name',
+        'bank_branch',
         'bank_bsb',
         'bank_account_number',
         'bank_swift',

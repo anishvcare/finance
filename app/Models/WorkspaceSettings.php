@@ -66,10 +66,6 @@ class WorkspaceSettings extends Model
         'default_payment_terms' => 'integer',
     ];
 
-    protected $hidden = [
-        'bank_account_number',
-    ];
-
     public function workspace()
     {
         return $this->belongsTo(Workspace::class);

@@ -1,0 +1,38 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './lib/auth';
+import { AppRoutes } from './routes';
+import { InstallPWABanner } from './components/InstallPWA';
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 5 * 60 * 1000, // 5 minutes
+            retry: 1,
+            refetchOnWindowFocus: false,
+        },
+    },
+});
+
+function App() {
+    return (
+        <QueryClientProvider client={queryClient}>
+            <BrowserRouter basename="/app">
+                <AuthProvider>
+                    <AppRoutes />
+                    <InstallPWABanner />
+                    <Toaster position="top-right" />
+                </AuthProvider>
+            </BrowserRouter>
+        </QueryClientProvider>
+    );
+}
+
+const container = document.getElementById('app');
+if (container) {
+    const root = createRoot(container);
+    root.render(<App />);
+}

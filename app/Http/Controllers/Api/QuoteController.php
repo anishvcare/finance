@@ -34,14 +34,14 @@ class QuoteController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
+            'customer_id' => ['required', $this->existsInWorkspace('customers')],
             'quote_date' => 'required|date',
             'expiry_date' => 'nullable|date|after_or_equal:quote_date',
             'currency' => 'required|string|size:3',
             'items' => 'required|array|min:1',
             'items.*.type' => 'required|in:product,service,custom',
-            'items.*.product_id' => 'nullable|exists:products,id',
-            'items.*.service_id' => 'nullable|exists:services,id',
+            'items.*.product_id' => ['nullable', $this->existsInWorkspace('products')],
+            'items.*.service_id' => ['nullable', $this->existsInWorkspace('services')],
             'items.*.name' => 'required|string|max:255',
             'items.*.description' => 'nullable|string',
             'items.*.unit' => 'nullable|string|max:50',
@@ -120,13 +120,13 @@ class QuoteController extends Controller
         }
 
         $validated = $request->validate([
-            'customer_id' => 'sometimes|exists:customers,id',
+            'customer_id' => ['sometimes', $this->existsInWorkspace('customers')],
             'quote_date' => 'sometimes|date',
             'expiry_date' => 'nullable|date',
             'items' => 'sometimes|array|min:1',
             'items.*.type' => 'required_with:items|in:product,service,custom',
-            'items.*.product_id' => 'nullable|exists:products,id',
-            'items.*.service_id' => 'nullable|exists:services,id',
+            'items.*.product_id' => ['nullable', $this->existsInWorkspace('products')],
+            'items.*.service_id' => ['nullable', $this->existsInWorkspace('services')],
             'items.*.name' => 'required_with:items|string|max:255',
             'items.*.description' => 'nullable|string',
             'items.*.unit' => 'nullable|string|max:50',

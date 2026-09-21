@@ -30,15 +30,15 @@ class TransactionController extends Controller
     {
         $validated = $request->validate([
             'uuid' => 'nullable|uuid|unique:transactions,uuid',
-            'account_id' => 'required|exists:accounts,id',
+            'account_id' => ['required', $this->existsInWorkspace('accounts')],
             'type' => 'required|in:income,expense,transfer,refund,adjustment',
             'amount' => 'required|integer|min:1',
             'currency' => 'required|string|size:3',
             'date' => 'required|date',
             'time' => 'nullable|date_format:H:i',
-            'category_id' => 'nullable|exists:categories,id',
-            'customer_id' => 'nullable|exists:customers,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
+            'category_id' => ['nullable', $this->existsInWorkspace('categories')],
+            'customer_id' => ['nullable', $this->existsInWorkspace('customers')],
+            'supplier_id' => ['nullable', $this->existsInWorkspace('suppliers')],
             'description' => 'nullable|string|max:500',
             'notes' => 'nullable|string',
             'payment_method' => 'nullable|string|max:50',
@@ -93,7 +93,7 @@ class TransactionController extends Controller
     public function update(Request $request, Transaction $transaction): JsonResponse
     {
         $validated = $request->validate([
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => ['nullable', $this->existsInWorkspace('categories')],
             'description' => 'nullable|string|max:500',
             'notes' => 'nullable|string',
             'tags' => 'nullable|array',
@@ -123,8 +123,8 @@ class TransactionController extends Controller
     public function transfer(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'from_account_id' => 'required|exists:accounts,id',
-            'to_account_id' => 'required|exists:accounts,id|different:from_account_id',
+            'from_account_id' => ['required', $this->existsInWorkspace('accounts')],
+            'to_account_id' => ['required', 'different:from_account_id', $this->existsInWorkspace('accounts')],
             'amount' => 'required|integer|min:1',
             'date' => 'required|date',
             'description' => 'nullable|string|max:500',

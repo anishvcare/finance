@@ -34,7 +34,7 @@ class BillController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
+            'supplier_id' => ['required', $this->existsInWorkspace('suppliers')],
             'supplier_invoice_number' => 'nullable|string|max:100',
             'bill_date' => 'required|date',
             'due_date' => 'required|date|after_or_equal:bill_date',
@@ -116,7 +116,7 @@ class BillController extends Controller
             'amount' => 'required|integer|min:1',
             'payment_date' => 'required|date',
             'payment_method' => 'required|string|max:50',
-            'account_id' => 'required|exists:accounts,id',
+            'account_id' => ['required', $this->existsInWorkspace('accounts')],
             'reference_number' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
         ]);

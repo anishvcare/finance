@@ -29,9 +29,9 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'type' => 'required|in:incoming,outgoing',
-            'customer_id' => 'nullable|exists:customers,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
-            'account_id' => 'required|exists:accounts,id',
+            'customer_id' => ['nullable', $this->existsInWorkspace('customers')],
+            'supplier_id' => ['nullable', $this->existsInWorkspace('suppliers')],
+            'account_id' => ['required', $this->existsInWorkspace('accounts')],
             'amount' => 'required|integer|min:1',
             'currency' => 'required|string|size:3',
             'payment_date' => 'required|date',
@@ -39,8 +39,8 @@ class PaymentController extends Controller
             'reference_number' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
             'allocations' => 'nullable|array',
-            'allocations.*.invoice_id' => 'nullable|exists:invoices,id',
-            'allocations.*.bill_id' => 'nullable|exists:bills,id',
+            'allocations.*.invoice_id' => ['nullable', $this->existsInWorkspace('invoices')],
+            'allocations.*.bill_id' => ['nullable', $this->existsInWorkspace('bills')],
             'allocations.*.amount' => 'required_with:allocations|integer|min:1',
         ]);
 
@@ -84,8 +84,8 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'allocations' => 'required|array|min:1',
-            'allocations.*.invoice_id' => 'nullable|exists:invoices,id',
-            'allocations.*.bill_id' => 'nullable|exists:bills,id',
+            'allocations.*.invoice_id' => ['nullable', $this->existsInWorkspace('invoices')],
+            'allocations.*.bill_id' => ['nullable', $this->existsInWorkspace('bills')],
             'allocations.*.amount' => 'required|integer|min:1',
         ]);
 

@@ -8,8 +8,9 @@ import {
     Receipt, CreditCard, ArrowLeftRight, CheckSquare, Target,
     Contact, Calendar, BarChart3, Settings, Menu, X, LogOut,
     ChevronDown, ChevronRight, Bell, Plus, UserPlus, ShoppingBag, Download,
-    ArrowDownRight, ArrowUpRight, Home, Check
+    ArrowDownRight, ArrowUpRight, Home, Check, User as UserIcon, Layers
 } from 'lucide-react';
+import { useWorkspaceSwitch, WorkspaceType } from '../lib/useWorkspaceSwitch';
 
 interface NavItem { label: string; path: string; icon: React.ElementType; }
 interface NavGroup { label: string; icon: React.ElementType; children: NavItem[]; }
@@ -17,6 +18,7 @@ type NavEntry = ({ kind: 'item' } & NavItem) | ({ kind: 'group' } & NavGroup);
 
 const nav: NavEntry[] = [
     { kind: 'item', label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { kind: 'item', label: 'Combined Overview', path: '/overview', icon: Layers },
     {
         kind: 'group', label: 'Sales', icon: ShoppingBag, children: [
             { label: 'Products', path: '/products', icon: Package },
@@ -43,25 +45,16 @@ export function AppLayout({ children }: { children: ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showInstall, setShowInstall] = useState(!isInstalled());
     const [wsOpen, setWsOpen] = useState(false);
-    const [wsBusy, setWsBusy] = useState(false);
-    const { user, workspace, logout, switchWorkspace } = useAuth();
+    const { user, workspace, logout } = useAuth();
+    const { workspaces, activeType, busy: wsBusy, switchToId, switchToType } = useWorkspaceSwitch();
     const location = useLocation();
     const isBusiness = (workspace?.type ?? 'business') !== 'personal';
-    const workspaces = user?.workspaces ?? [];
 
-    const handleSwitchWorkspace = async (id: number) => {
-        if (wsBusy || id === workspace?.id) { setWsOpen(false); return; }
-        setWsBusy(true);
-        try {
-            await switchWorkspace(id);
-            // Full reload guarantees every page shows the selected workspace's data.
-            window.location.reload();
-        } catch {
-            toast.error('Failed to switch workspace.');
-            setWsBusy(false);
-            setWsOpen(false);
-        }
-    };
+    // Always offer both Business and Personal (created on demand if missing).
+    // Any further workspaces beyond the primary one of each type are listed after.
+    const primaryOf = (type: WorkspaceType) => workspaces.find(w => w.type === type);
+    const primaryIds = [primaryOf('business')?.id, primaryOf('personal')?.id].filter(Boolean);
+    const extraWorkspaces = workspaces.filter(w => !primaryIds.includes(w.id));
 
     const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
 
@@ -114,8 +107,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
                             className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-sm"
                         >
                             <div className="flex items-center space-x-2 truncate">
-                                <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center"><span className="text-blue-600 text-xs font-bold">{workspace?.name?.[0] || 'W'}</span></div>
-                                <span className="font-medium text-gray-700 truncate">{workspace?.name || 'Workspace'}</span>
+                                <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
+                                    {isBusiness ? <Briefcase className="w-3.5 h-3.5 text-blue-600" /> : <UserIcon className="w-3.5 h-3.5 text-blue-600" />}
+                                </div>
+                                <span className="truncate text-left">
+                                    <span className="font-medium text-gray-700 truncate block">{workspace?.name || 'Workspace'}</span>
+                                    <span className="text-xs text-gray-400 capitalize block">{workspace?.type || ''}</span>
+                                </span>
                             </div>
                             <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${wsOpen ? 'rotate-180' : ''}`} />
                         </button>
@@ -128,31 +126,62 @@ export function AppLayout({ children }: { children: ReactNode }) {
                                     role="listbox"
                                     className="absolute left-3 right-3 z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
                                 >
-                                    {workspaces.length === 0 && (
-                                        <div className="px-3 py-2 text-sm text-gray-400">No workspaces</div>
-                                    )}
-                                    {workspaces.map((ws) => {
-                                        const active = ws.id === workspace?.id;
+                                    <div className="px-3 pt-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Switch workspace</div>
+
+                                    {([
+                                        { type: 'business' as WorkspaceType, label: 'Business', Icon: Briefcase },
+                                        { type: 'personal' as WorkspaceType, label: 'Personal', Icon: UserIcon },
+                                    ]).map(({ type, label, Icon }) => {
+                                        const ws = primaryOf(type);
+                                        const active = activeType === type;
                                         return (
                                             <button
-                                                key={ws.id}
+                                                key={type}
                                                 role="option"
                                                 aria-selected={active}
                                                 disabled={wsBusy}
-                                                onClick={() => handleSwitchWorkspace(ws.id)}
+                                                onClick={() => { switchToType(type); setWsOpen(false); }}
                                                 className={`w-full flex items-center justify-between px-3 py-2 text-sm text-left transition disabled:opacity-60 ${active ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'}`}
                                             >
                                                 <span className="flex items-center space-x-2 truncate">
-                                                    <span className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center flex-shrink-0"><span className="text-blue-600 text-xs font-bold">{ws.name?.[0] || 'W'}</span></span>
+                                                    <Icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
                                                     <span className="truncate">
-                                                        <span className="font-medium block truncate">{ws.name}</span>
-                                                        <span className="text-xs text-gray-400 capitalize">{ws.type}</span>
+                                                        <span className="font-medium block truncate">{label}</span>
+                                                        <span className="text-xs text-gray-400 truncate block">{ws ? ws.name : 'Tap to set up'}</span>
                                                     </span>
                                                 </span>
                                                 {active && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
                                             </button>
                                         );
                                     })}
+
+                                    {extraWorkspaces.length > 0 && (
+                                        <>
+                                            <div className="my-1 border-t border-gray-100" />
+                                            {extraWorkspaces.map((ws) => {
+                                                const active = ws.id === workspace?.id;
+                                                return (
+                                                    <button
+                                                        key={ws.id}
+                                                        role="option"
+                                                        aria-selected={active}
+                                                        disabled={wsBusy}
+                                                        onClick={() => { switchToId(ws.id); setWsOpen(false); }}
+                                                        className={`w-full flex items-center justify-between px-3 py-2 text-sm text-left transition disabled:opacity-60 ${active ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'}`}
+                                                    >
+                                                        <span className="flex items-center space-x-2 truncate">
+                                                            <span className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center flex-shrink-0"><span className="text-blue-600 text-xs font-bold">{ws.name?.[0] || 'W'}</span></span>
+                                                            <span className="truncate">
+                                                                <span className="font-medium block truncate">{ws.name}</span>
+                                                                <span className="text-xs text-gray-400 capitalize">{ws.type}</span>
+                                                            </span>
+                                                        </span>
+                                                        {active && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+                                                    </button>
+                                                );
+                                            })}
+                                        </>
+                                    )}
                                 </div>
                             </>
                         )}

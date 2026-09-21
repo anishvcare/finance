@@ -5,6 +5,7 @@ import { AppLayout } from './layouts/AppLayout';
 
 // Lazy-loaded pages for code splitting
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Overview = lazy(() => import('./pages/Overview'));
 const Products = lazy(() => import('./pages/Products'));
 const ProductForm = lazy(() => import('./pages/Products/ProductForm'));
 const Services = lazy(() => import('./pages/Services'));
@@ -69,6 +70,7 @@ export function AppRoutes() {
             <Suspense fallback={<LoadingFallback />}>
                 <Routes>
                     <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/overview" element={<Overview />} />
                     <Route path="/products" element={<Products />} />
                     <Route path="/products/create" element={<ProductForm />} />
                     <Route path="/products/:id/edit" element={<ProductForm />} />

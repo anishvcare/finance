@@ -31,6 +31,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'user']);
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+    Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification'])
+        ->middleware('throttle:6,1');
 
     // Workspaces
     Route::get('/workspaces', [WorkspaceController::class, 'index']);
@@ -38,6 +40,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/workspaces/{workspace}', [WorkspaceController::class, 'show']);
     Route::put('/workspaces/{workspace}', [WorkspaceController::class, 'update']);
     Route::post('/workspaces/{workspace}/switch', [WorkspaceController::class, 'switch']);
+
+    // Consolidated overview across all of the user's workspaces (Business + Personal).
+    // Deliberately outside the workspace-scoped group: it spans workspaces.
+    Route::get('/overview', [\App\Http\Controllers\Api\OverviewController::class, 'index']);
+
+    // Transfers between the user's own workspaces (e.g. Business -> Personal owner's draw).
+    // Also spans workspaces, so it sits outside the workspace-scoped group.
+    Route::get('/workspace-transfers', [\App\Http\Controllers\Api\WorkspaceTransferController::class, 'index']);
+    Route::get('/workspace-transfers/accounts', [\App\Http\Controllers\Api\WorkspaceTransferController::class, 'accounts']);
+    Route::post('/workspace-transfers', [\App\Http\Controllers\Api\WorkspaceTransferController::class, 'store']);
 
     // Workspace-scoped routes
     Route::middleware(['workspace.member'])->group(function () {

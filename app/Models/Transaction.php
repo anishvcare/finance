@@ -17,7 +17,7 @@ class Transaction extends Model
         'invoice_id', 'bill_id', 'payment_id', 'description', 'notes',
         'payment_method', 'reference', 'tags', 'is_recurring', 'recurrence_rule',
         'ocr_import_id', 'ocr_confidence', 'review_status', 'transfer_pair_id',
-        'created_by',
+        'direction_hint', 'created_by',
     ];
 
     protected $casts = [

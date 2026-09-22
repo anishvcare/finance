@@ -145,9 +145,11 @@
             <h4 style="color: {{ $accent }}; font-size: 8.5pt; text-transform: uppercase; margin-bottom: 4px;">Payment Details</h4>
             <p style="font-size: 8.5pt; color: #555;">
                 @if($settings->bank_account_name)Account Name: {{ $settings->bank_account_name }}<br>@endif
+                @if($settings->bank_account_number)Account No: {{ $settings->bank_account_number }}<br>@endif
                 @if($settings->bank_name)Bank: {{ $settings->bank_name }}@endif
                 @if($settings->bank_swift) &nbsp; SWIFT/IFSC: {{ $settings->bank_swift }}@endif
                 @if($settings->bank_iban)<br>IBAN: {{ $settings->bank_iban }}@endif
+                @if($settings->bank_branch)<br>Branch : {{ $settings->bank_branch }}@endif
                 @if($settings->upi_id)<br>UPI: {{ $settings->upi_id }}@endif
                 @if($settings->payment_instructions)<br>{!! nl2br(e($settings->payment_instructions)) !!}@endif
             </p>

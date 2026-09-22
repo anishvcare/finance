@@ -30,6 +30,30 @@ Route::middleware(['web'])->group(function () {
     Route::get('/password/reset', fn() => view('auth.forgot-password'));
     Route::get('/password/reset/{token}', fn($token) => view('auth.reset-password', ['token' => $token]));
 
+    /*
+     * Email verification.
+     *
+     * Laravel's VerifyEmail notification builds its link with
+     * URL::temporarySignedRoute('verification.verify', ...), so this route must
+     * exist and must be named exactly this. Without it, registration crashed
+     * while sending the verification mail.
+     */
+    Route::get('/email/verify/{id}/{hash}', function (string $id, string $hash) {
+        $user = \App\Models\User::findOrFail($id);
+
+        // Confirms the link was issued for this user's current email address.
+        if (! hash_equals($hash, sha1($user->getEmailForVerification()))) {
+            abort(403, 'Invalid verification link.');
+        }
+
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            event(new \Illuminate\Auth\Events\Verified($user));
+        }
+
+        return redirect('/app/dashboard?verified=1');
+    })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+
     // Google OAuth routes
     Route::get('/auth/google', function () {
         return \Laravel\Socialite\Facades\Socialite::driver('google')->redirect();

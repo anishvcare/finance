@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Socialite\Facades\Socialite;
@@ -29,15 +30,51 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        $user->sendEmailVerificationNotification();
+        // The account is already created, so a mail failure (misconfigured SMTP
+        // on shared hosting, for example) must not fail the registration. The
+        // user can request a new link from /auth/resend-verification.
+        $verificationSent = $this->trySendVerification($user);
 
         Auth::login($user);
         $request->session()->regenerate();
 
         return response()->json([
             'user' => $user,
-            'message' => 'Registration successful. Please verify your email.',
+            'message' => $verificationSent
+                ? 'Registration successful. Please verify your email.'
+                : 'Registration successful, but the verification email could not be sent. You can request a new one.',
         ], 201);
+    }
+
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email already verified.']);
+        }
+
+        if (! $this->trySendVerification($user)) {
+            return response()->json(['message' => 'Could not send the verification email. Please try again later.'], 500);
+        }
+
+        return response()->json(['message' => 'Verification link sent.']);
+    }
+
+    private function trySendVerification(User $user): bool
+    {
+        try {
+            $user->sendEmailVerificationNotification();
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Failed to send verification email', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     public function login(Request $request): JsonResponse

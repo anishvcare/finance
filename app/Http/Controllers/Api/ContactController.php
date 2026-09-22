@@ -34,8 +34,8 @@ class ContactController extends Controller
             'role' => 'nullable|string|max:100',
             'notes' => 'nullable|string',
             'tags' => 'nullable|array',
-            'customer_id' => 'nullable|exists:customers,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
+            'customer_id' => ['nullable', $this->existsInWorkspace('customers')],
+            'supplier_id' => ['nullable', $this->existsInWorkspace('suppliers')],
         ]);
 
         $contact = Contact::create($validated);
@@ -58,8 +58,8 @@ class ContactController extends Controller
             'role' => 'nullable|string|max:100',
             'notes' => 'nullable|string',
             'tags' => 'nullable|array',
-            'customer_id' => 'nullable|exists:customers,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
+            'customer_id' => ['nullable', $this->existsInWorkspace('customers')],
+            'supplier_id' => ['nullable', $this->existsInWorkspace('suppliers')],
             'is_active' => 'nullable|boolean',
         ]);
 

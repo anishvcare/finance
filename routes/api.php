@@ -31,6 +31,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'user']);
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+    Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification'])
+        ->middleware('throttle:6,1');
 
     // Workspaces
     Route::get('/workspaces', [WorkspaceController::class, 'index']);

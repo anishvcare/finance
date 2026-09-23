@@ -34,8 +34,8 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <label class="flex items-center space-x-2 text-sm">
-                        <input type="checkbox" name="remember" class="rounded border-gray-300">
-                        <span class="text-gray-600">Remember me</span>
+                        <input type="checkbox" name="remember" checked class="rounded border-gray-300">
+                        <span class="text-gray-600">Keep me signed in</span>
                     </label>
                     <a href="/password/reset" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
                 </div>
@@ -64,7 +64,13 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || '') },
             credentials: 'same-origin',
-            body: JSON.stringify({ email: form.email.value, password: form.password.value }),
+            // 'remember' was previously collected by the form but never sent, so
+            // the checkbox had no effect and sessions expired on their own.
+            body: JSON.stringify({
+                email: form.email.value,
+                password: form.password.value,
+                remember: form.remember?.checked ?? true,
+            }),
         });
         const data = await res.json();
         if (res.ok) {

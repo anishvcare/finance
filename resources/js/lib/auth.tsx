@@ -9,6 +9,8 @@ interface User {
     avatar: string | null;
     is_super_admin: boolean;
     onboarding_completed: boolean;
+    /** Null until the account redeems an activation code. */
+    activated_at: string | null;
     current_workspace_id: number | null;
     timezone: string;
     date_format: string;

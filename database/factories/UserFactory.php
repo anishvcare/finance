@@ -21,6 +21,10 @@ class UserFactory extends Factory
             'is_super_admin' => false,
             'is_active' => true,
             'onboarding_completed' => true,
+            // Default to an activated account: the factory should produce a
+            // user that can actually use the app. Use unactivated() for the
+            // just-signed-up state.
+            'activated_at' => now(),
             'timezone' => 'UTC',
             'date_format' => 'Y-m-d',
             'remember_token' => Str::random(10),
@@ -35,5 +39,14 @@ class UserFactory extends Factory
     public function suspended(): static
     {
         return $this->state(fn() => ['is_active' => false]);
+    }
+
+    /** A freshly registered account that has not redeemed an activation code. */
+    public function unactivated(): static
+    {
+        return $this->state(fn() => [
+            'activated_at' => null,
+            'onboarding_completed' => false,
+        ]);
     }
 }

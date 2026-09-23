@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivationCodeController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,4 +12,9 @@ Route::middleware(['auth:sanctum'])->prefix('api/admin')->group(function () {
     Route::get('/plans', [AdminDashboardController::class, 'plans']);
     Route::put('/plans/{plan}', [AdminDashboardController::class, 'updatePlan']);
     Route::get('/health', [AdminDashboardController::class, 'healthCheck']);
+
+    // Activation codes
+    Route::get('/activation-codes', [ActivationCodeController::class, 'index']);
+    Route::post('/activation-codes', [ActivationCodeController::class, 'store']);
+    Route::delete('/activation-codes/{activationCode}', [ActivationCodeController::class, 'destroy']);
 });

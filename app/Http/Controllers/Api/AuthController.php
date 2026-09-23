@@ -35,7 +35,9 @@ class AuthController extends Controller
         // user can request a new link from /auth/resend-verification.
         $verificationSent = $this->trySendVerification($user);
 
-        Auth::login($user);
+        // remember: true so the account stays signed in until it explicitly
+        // logs out, rather than only for the session lifetime.
+        Auth::login($user, true);
         $request->session()->regenerate();
 
         return response()->json([

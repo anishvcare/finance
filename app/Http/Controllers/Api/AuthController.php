@@ -120,6 +120,30 @@ class AuthController extends Controller
         return response()->json($user);
     }
 
+    /**
+     * Update the signed-in user's own profile.
+     *
+     * Only these four fields are accepted. Several other columns are in the
+     * model's $fillable — is_super_admin, is_active, current_workspace_id,
+     * email, password, google_id — and must never be settable from here:
+     * the first two would be privilege escalation, and the rest have their own
+     * dedicated endpoints (workspace switching, password change, OAuth).
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'timezone' => 'sometimes|string|max:50',
+            'date_format' => 'sometimes|string|max:20',
+            'onboarding_completed' => 'sometimes|boolean',
+        ]);
+
+        $user = $request->user();
+        $user->update($validated);
+
+        return response()->json($user->fresh()->load(['currentWorkspace', 'workspaces']));
+    }
+
     public function changePassword(Request $request): JsonResponse
     {
         $validated = $request->validate([

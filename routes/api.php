@@ -35,6 +35,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification'])
         ->middleware('throttle:6,1');
 
+    // Redeeming an activation code. Throttled: this is the one endpoint where a
+    // valid code could be guessed at, so attempts are rate limited per user.
+    Route::post('/auth/activate', [\App\Http\Controllers\Api\ActivationController::class, 'activate'])
+        ->middleware('throttle:10,1');
+
     // Workspaces
     Route::get('/workspaces', [WorkspaceController::class, 'index']);
     Route::post('/workspaces', [WorkspaceController::class, 'store']);
@@ -52,8 +57,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/workspace-transfers/accounts', [\App\Http\Controllers\Api\WorkspaceTransferController::class, 'accounts']);
     Route::post('/workspace-transfers', [\App\Http\Controllers\Api\WorkspaceTransferController::class, 'store']);
 
-    // Workspace-scoped routes
-    Route::middleware(['workspace.member'])->group(function () {
+    // Workspace-scoped routes. 'activated' holds unactivated accounts out of
+    // the app entirely until they redeem a code.
+    Route::middleware(['activated', 'workspace.member'])->group(function () {
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index']);
 

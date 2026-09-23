@@ -8,7 +8,7 @@ import {
     Receipt, CreditCard, ArrowLeftRight, CheckSquare, Target,
     Contact, Calendar, BarChart3, Settings, Menu, X, LogOut,
     ChevronDown, ChevronRight, Bell, Plus, UserPlus, ShoppingBag, Download,
-    ArrowDownRight, ArrowUpRight, Home, Check, User as UserIcon, Layers
+    ArrowDownRight, ArrowUpRight, Home, Check, User as UserIcon, Layers, KeyRound
 } from 'lucide-react';
 import { useWorkspaceSwitch, WorkspaceType } from '../lib/useWorkspaceSwitch';
 
@@ -228,6 +228,21 @@ export function AppLayout({ children }: { children: ReactNode }) {
                                 </div>
                             );
                         })}
+
+                        {/* Platform administration, super admins only */}
+                        {user?.is_super_admin && (
+                            <div className="pt-3 mt-2 border-t border-gray-100">
+                                <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Admin</p>
+                                <Link
+                                    to="/admin/activation-codes"
+                                    onClick={() => setSidebarOpen(false)}
+                                    className={navLinkClass(isActive('/admin/activation-codes'))}
+                                >
+                                    <KeyRound className={`w-5 h-5 ${isActive('/admin/activation-codes') ? 'text-blue-600' : 'text-gray-400'}`} />
+                                    <span>Activation Codes</span>
+                                </Link>
+                            </div>
+                        )}
                     </nav>
 
                     {/* Install app */}

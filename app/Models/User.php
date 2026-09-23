@@ -21,6 +21,7 @@ class User extends Authenticatable
         'is_super_admin',
         'is_active',
         'onboarding_completed',
+        'activated_at',
         'timezone',
         'date_format',
         'current_workspace_id',
@@ -36,11 +37,22 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',
+        'activated_at' => 'datetime',
         'password' => 'hashed',
         'is_super_admin' => 'boolean',
         'is_active' => 'boolean',
         'onboarding_completed' => 'boolean',
     ];
+
+    public function activationCode()
+    {
+        return $this->hasOne(ActivationCode::class, 'used_by');
+    }
+
+    public function isActivated(): bool
+    {
+        return $this->activated_at !== null;
+    }
 
     public function workspaces()
     {

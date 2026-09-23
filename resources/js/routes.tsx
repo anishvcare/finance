@@ -6,6 +6,8 @@ import { AppLayout } from './layouts/AppLayout';
 // Lazy-loaded pages for code splitting
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Overview = lazy(() => import('./pages/Overview'));
+const Activate = lazy(() => import('./pages/Activate'));
+const AdminActivationCodes = lazy(() => import('./pages/Admin/ActivationCodes'));
 const Products = lazy(() => import('./pages/Products'));
 const ProductForm = lazy(() => import('./pages/Products/ProductForm'));
 const Services = lazy(() => import('./pages/Services'));
@@ -54,6 +56,21 @@ export function AppRoutes() {
         return null;
     }
 
+    // Activation comes first: an unactivated account is blocked from the API by
+    // the 'activated' middleware, so there is nothing useful it could render.
+    if (!user.activated_at) {
+        return (
+            <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                    <Route path="/activate" element={<Activate />} />
+                    <Route path="*" element={<Navigate to="/activate" replace />} />
+                </Routes>
+            </Suspense>
+        );
+    }
+
+    // Activation provisions a workspace, so this only catches accounts that
+    // predate activation codes and never finished setup.
     if (!user.onboarding_completed && !user.current_workspace_id) {
         return (
             <Suspense fallback={<LoadingFallback />}>
@@ -97,6 +114,11 @@ export function AppRoutes() {
                     <Route path="/reports/:type" element={<Reports />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/settings/:section" element={<Settings />} />
+                    {/* Platform admin. The API enforces this too; hiding the
+                        route just avoids showing a page that would only 403. */}
+                    {user.is_super_admin && (
+                        <Route path="/admin/activation-codes" element={<AdminActivationCodes />} />
+                    )}
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>

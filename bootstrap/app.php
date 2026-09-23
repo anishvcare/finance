@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureActivated;
 use App\Http\Middleware\EnsureWorkspaceMember;
 use App\Http\Middleware\CheckFeatureLimit;
 use App\Http\Middleware\SetCacheHeaders;
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Named middleware aliases
         $middleware->alias([
+            'activated' => EnsureActivated::class,
             'workspace.member' => EnsureWorkspaceMember::class,
             'feature.limit' => CheckFeatureLimit::class,
             'cache.headers' => SetCacheHeaders::class,

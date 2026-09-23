@@ -67,7 +67,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         });
         const data = await res.json();
         if (res.ok) {
-            window.location.href = '/app/onboarding';
+            window.location.href = '/app/activate';
         } else {
             const errors = data.errors ? Object.values(data.errors).flat().join(' ') : data.message;
             errorEl.textContent = errors;
